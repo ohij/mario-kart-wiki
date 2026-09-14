@@ -505,4 +505,3 @@ export default async function TrackPage({
     </main>
   );
 }
-```
