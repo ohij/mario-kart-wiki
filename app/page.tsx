@@ -1,69 +1,421 @@
-import Image from "next/image";
+const tracks = [
+  {
+    name: "Mario Circuit",
+    game: "Mario Kart World",
+    difficulty: 2,
+    description: "A classic circuit-style track.",
+  },
+  {
+    name: "Peach Stadium",
+    game: "Mario Kart World",
+    difficulty: 3,
+    description: "A technical track with challenging sections.",
+  },
+  {
+    name: "Whistlestop Summit",
+    game: "Mario Kart World",
+    difficulty: 4,
+    description: "A mountain track featuring elevation changes.",
+  },
+  {
+    name: "Dandelion Depths",
+    game: "Mario Kart World",
+    difficulty: 3,
+    description: "An off-road focused course.",
+  },
+];
+
+const shortcuts = [
+  {
+    name: "Mario Circuit Shortcut",
+    track: "Mario Circuit",
+    difficulty: 2,
+  },
+  {
+    name: "Peach Stadium Jump",
+    track: "Peach Stadium",
+    difficulty: 3,
+  },
+  {
+    name: "Summit Mountain Cut",
+    track: "Whistlestop Summit",
+    difficulty: 4,
+  },
+];
+
+const mechanics = [
+  {
+    icon: "💨",
+    name: "Drifting",
+    description: "Learn how to control your kart through corners.",
+  },
+  {
+    icon: "⚡",
+    name: "Mini-Turbo",
+    description: "Build and release boost while drifting.",
+  },
+  {
+    icon: "🪽",
+    name: "Jump Action",
+    description: "Use jumps and terrain to gain speed.",
+  },
+];
+
+const strategies = [
+  {
+    icon: "🏁",
+    name: "Racing Line",
+    description: "Find the fastest line through each section.",
+  },
+  {
+    icon: "🛡️",
+    name: "Item Defense",
+    description: "Learn when and how to protect your position.",
+  },
+  {
+    icon: "⚔️",
+    name: "Overtaking",
+    description: "Create opportunities to pass opponents.",
+  },
+];
+
+function Difficulty({ level }: { level: number }) {
+  return (
+    <span className="difficulty">
+      {"★".repeat(level)}
+      <span className="empty-stars">{"★".repeat(5 - level)}</span>
+    </span>
+  );
+}
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <main className="site">
+
+      {/* Navigation */}
+      <header className="navbar">
+        <div className="nav-inner">
+
+          <a href="/" className="logo">
+            <span className="logo-icon">🏎️</span>
+            <span>MARIO KART WIKI</span>
+          </a>
+
+          <nav className="nav-links">
+            <a href="#tracks">Tracks</a>
+            <a href="#shortcuts">Shortcuts</a>
+            <a href="#mechanics">Mechanics</a>
+            <a href="#strategies">Strategies</a>
+          </nav>
+
+          <button className="search-button">
+            🔍 Search
+          </button>
+
+        </div>
+      </header>
+
+
+      {/* Hero */}
+      <section className="hero">
+
+        <div className="hero-content">
+
+          <div className="hero-badge">
+            MARIO KART WORLD
+          </div>
+
+          <h1>
+            The Mario Kart
+            <span> Wiki</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+
+          <p className="hero-description">
+            Your community encyclopedia for tracks,
+            shortcuts, mechanics and racing strategies.
+          </p>
+
+          <div className="search-box">
+            <span>🔍</span>
+            <input
+              type="text"
+              placeholder="Search the Mario Kart Wiki..."
+            />
+            <button>Search</button>
+          </div>
+
+          <div className="hero-stats">
+            <div>
+              <strong>4</strong>
+              <span>Tracks</span>
+            </div>
+
+            <div>
+              <strong>3</strong>
+              <span>Shortcuts</span>
+            </div>
+
+            <div>
+              <strong>3</strong>
+              <span>Mechanics</span>
+            </div>
+
+            <div>
+              <strong>3</strong>
+              <span>Strategies</span>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      {/* Tracks */}
+      <section id="tracks" className="content-section">
+
+        <div className="section-heading">
+          <div>
+            <span className="section-label">EXPLORE</span>
+            <h2>🏁 Tracks</h2>
+            <p>
+              Explore tracks, sections, shortcuts and racing lines.
+            </p>
+          </div>
+
+          <a href="/tracks" className="view-all">
+            View all →
+          </a>
+        </div>
+
+
+        <div className="card-grid">
+
+          {tracks.map((track) => (
+            <article className="track-card" key={track.name}>
+
+              <div className="track-image">
+                <span>MAP</span>
+              </div>
+
+              <div className="card-content">
+
+                <div className="card-top">
+                  <span className="game-tag">
+                    Mario Kart World
+                  </span>
+
+                  <Difficulty level={track.difficulty} />
+                </div>
+
+                <h3>{track.name}</h3>
+
+                <p>{track.description}</p>
+
+                <a href="#" className="card-link">
+                  View track →
+                </a>
+
+              </div>
+
+            </article>
+          ))}
+
+        </div>
+
+      </section>
+
+
+      {/* Shortcuts */}
+      <section id="shortcuts" className="content-section alternate">
+
+        <div className="section-heading">
+          <div>
+            <span className="section-label">MASTER THE TRACK</span>
+            <h2>✂️ Shortcuts</h2>
+            <p>
+              Discover shortcuts and learn exactly how to perform them.
+            </p>
+          </div>
+
+          <a href="#shortcuts" className="view-all">
+            View all →
+          </a>
+        </div>
+
+
+        <div className="shortcut-grid">
+
+          {shortcuts.map((shortcut) => (
+            <article className="shortcut-card" key={shortcut.name}>
+
+              <div className="shortcut-number">
+                ✂️
+              </div>
+
+              <div className="shortcut-info">
+
+                <span className="small-tag">
+                  {shortcut.track}
+                </span>
+
+                <h3>{shortcut.name}</h3>
+
+                <div className="shortcut-bottom">
+                  <Difficulty level={shortcut.difficulty} />
+
+                  <a href="#">
+                    Learn →
+                  </a>
+                </div>
+
+              </div>
+
+            </article>
+          ))}
+
+        </div>
+
+      </section>
+
+
+      {/* Mechanics */}
+      <section id="mechanics" className="content-section">
+
+        <div className="section-heading">
+          <div>
+            <span className="section-label">LEARN</span>
+            <h2>⚙️ Mechanics</h2>
+            <p>
+              Understand the mechanics behind fast Mario Kart racing.
+            </p>
+          </div>
+
+          <a href="#mechanics" className="view-all">
+            View all →
+          </a>
+        </div>
+
+
+        <div className="info-grid">
+
+          {mechanics.map((mechanic) => (
+            <article className="info-card" key={mechanic.name}>
+
+              <div className="info-icon">
+                {mechanic.icon}
+              </div>
+
+              <h3>{mechanic.name}</h3>
+
+              <p>{mechanic.description}</p>
+
+              <a href="#">
+                Learn more →
+              </a>
+
+            </article>
+          ))}
+
+        </div>
+
+      </section>
+
+
+      {/* Strategies */}
+      <section id="strategies" className="content-section alternate">
+
+        <div className="section-heading">
+          <div>
+            <span className="section-label">RACE BETTER</span>
+            <h2>🧠 Strategies</h2>
+            <p>
+              Improve your racing decisions and consistency.
+            </p>
+          </div>
+
+          <a href="#strategies" className="view-all">
+            View all →
+          </a>
+        </div>
+
+
+        <div className="info-grid">
+
+          {strategies.map((strategy) => (
+            <article className="info-card strategy-card" key={strategy.name}>
+
+              <div className="info-icon">
+                {strategy.icon}
+              </div>
+
+              <h3>{strategy.name}</h3>
+
+              <p>{strategy.description}</p>
+
+              <a href="#">
+                Learn more →
+              </a>
+
+            </article>
+          ))}
+
+        </div>
+
+      </section>
+
+
+      {/* CTA */}
+      <section className="cta">
+
+        <div>
+          <span className="section-label">MARIO KART WIKI</span>
+
+          <h2>
+            Learn the track.
+            <br />
+            Master the race.
+          </h2>
+
+          <p>
+            Everything you need to become a faster Mario Kart racer.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <a href="#tracks" className="cta-button">
+          Explore the Wiki →
+        </a>
+
+      </section>
+
+
+      {/* Footer */}
+      <footer className="footer">
+
+        <div className="footer-inner">
+
+          <div className="footer-brand">
+            <strong>🏎️ MARIO KART WIKI</strong>
+            <p>
+              A community-driven Mario Kart knowledge base.
+            </p>
+          </div>
+
+          <div className="footer-links">
+            <a href="#tracks">Tracks</a>
+            <a href="#shortcuts">Shortcuts</a>
+            <a href="#mechanics">Mechanics</a>
+            <a href="#strategies">Strategies</a>
+          </div>
+
         </div>
-      </main>
-    </div>
+
+        <div className="copyright">
+          Mario Kart Wiki — Community Project
+        </div>
+
+      </footer>
+
+    </main>
   );
 }
