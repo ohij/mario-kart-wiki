@@ -77,7 +77,7 @@ catalog is available through `/tracks`.
    이미지와 영상, 숏컷 설명은 공개 자료입니다. 서버 쓰기 토큰은 공개되지 않습니다.
 2. 서버 환경 변수 `BLOB_READ_WRITE_TOKEN`이 연결되어 있는지 확인합니다.
    직접 업로드 토큰 발급에 필요하며 `NEXT_PUBLIC_` 접두사를 붙이지 않습니다.
-3. `SHORTCUT_ADMIN_PASSWORD`를 최소 16자 이상, 가능하면 비밀번호 관리자로 생성한
+3. `SHORTCUT_ADMIN_PASSWORD`를 최소 8자 이상, 가능하면 비밀번호 관리자로 생성한
    32자 이상의 고유한 임의 비밀번호로 설정합니다. 비밀번호를 채팅이나 코드에 넣지 않습니다.
 4. 환경 변수 적용 후 재배포합니다. 로컬 개발은 `.env.example`을 참고해 동일 값을 `.env.local`에 넣고 재시작합니다.
    Production과 Preview는 서로 다른 Blob 저장소와 비밀번호를 사용하는 것이 좋습니다.

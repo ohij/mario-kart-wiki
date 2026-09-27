@@ -5,7 +5,7 @@ import { parseBackup, type ShortcutBackup } from "./shortcut-drafts";
 
 export const storageConfigured = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 export const cookieName = "mkw-admin";
-export const adminConfigured = () => (process.env.SHORTCUT_ADMIN_PASSWORD?.length ?? 0) >= 16;
+export const adminConfigured = () => (process.env.SHORTCUT_ADMIN_PASSWORD?.length ?? 0) >= 8;
 const digest = (value: string) => createHash("sha256").update(value).digest();
 export function validPassword(value: string) { return adminConfigured() && timingSafeEqual(digest(value), digest(process.env.SHORTCUT_ADMIN_PASSWORD!)); }
 const signature = (value: string) => createHmac("sha256", process.env.SHORTCUT_ADMIN_PASSWORD!).update(`shortcut-admin:${value}`).digest("hex");
