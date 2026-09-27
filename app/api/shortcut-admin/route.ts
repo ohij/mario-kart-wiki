@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "관리자 비밀번호가 올바르지 않습니다." }, { status: 401 });
     }
     failures = 0;
-    const response = NextResponse.json({ authenticated: true });
+    const response = NextResponse.json({ authenticated: true, storage: storageConfigured() });
     response.cookies.set(cookieName, sessionToken(), { httpOnly: true, sameSite: "strict", secure: request.nextUrl.protocol === "https:", path: "/", maxAge: 8 * 60 * 60 });
     return response;
   } catch { return NextResponse.json({ error: "로그인 요청이 올바르지 않습니다." }, { status: 400 }); }

@@ -10,6 +10,8 @@ import { newShortcut, newStep, parseBackup, validateMedia, safeMedia, youtubeEmb
 export default function ShortcutEditor({ slug, initial }: { slug: string; initial: Shortcut[] }) {
   const [items, setItems] = useState<ShortcutDraft[]>([]);
   const [ready, setReady] = useState(false);
+  const [contentError, setContentError] = useState("");
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [preview, setPreview] = useState(true);
@@ -24,17 +26,30 @@ export default function ShortcutEditor({ slug, initial }: { slug: string; initia
 
   useEffect(() => {
     let active = true;
-    Promise.all([
-      fetch(`/api/tracks/${slug}/shortcuts`, { cache: "no-store" }).then(responseJson),
-      fetch("/api/shortcut-admin", { cache: "no-store" }).then(responseJson),
-    ]).then(([saved, auth]) => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    fetch(`/api/tracks/${slug}/shortcuts`, { cache: "no-store", signal: controller.signal }).then(responseJson).then((saved) => {
       if (!active) return;
       setItems(saved.data ? parseBackup(saved.data, slug).shortcuts : initial.map((item) => ({ ...newShortcut(), title: item.name, steps: [{ ...newStep(), text: item.description }] })));
-      setRevision(saved.revision); setAdmin(auth.authenticated); setConfigured(auth.configured); setStorage(auth.storage);
+      setRevision(saved.revision);
+      setContentError("");
       setReady(true);
-    }).catch(() => { if (active) setError("숏컷을 불러오지 못했습니다. 페이지를 새로고침해 주세요."); });
-    return () => { active = false; };
-  }, [slug, initial]);
+    }).catch(() => { if (active) setContentError("숏컷을 불러오지 못했습니다. 다시 불러오기를 눌러 주세요. 관리자 로그인은 사용할 수 있습니다."); })
+      .finally(() => clearTimeout(timeout));
+    return () => { active = false; controller.abort(); clearTimeout(timeout); };
+  }, [slug, initial, loadAttempt]);
+
+  useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    fetch("/api/shortcut-admin", { cache: "no-store", signal: controller.signal }).then(responseJson).then((auth) => {
+      if (!active) return;
+      setAdmin(auth.authenticated); setConfigured(auth.configured); setStorage(auth.storage);
+    }).catch(() => { if (active) setError("로그인 상태를 확인하지 못했습니다. 관리자 로그인에서 다시 시도해 주세요."); })
+      .finally(() => clearTimeout(timeout));
+    return () => { active = false; controller.abort(); clearTimeout(timeout); };
+  }, []);
 
   useEffect(() => {
     if (!dirty) return;
@@ -92,24 +107,25 @@ export default function ShortcutEditor({ slug, initial }: { slug: string; initia
       {admin ? <button type="button" disabled={busy} onClick={() => {
         if (dirty && !window.confirm("저장하지 않은 변경이 있습니다. 로그아웃할까요?")) return;
         void run(async () => { await fetch("/api/shortcut-admin", { method: "DELETE" }).then(responseJson); window.location.reload(); });
-      }}>관리자 로그아웃</button> : <button type="button" disabled={!ready || busy} onClick={() => setLoginOpen(!loginOpen)}>관리자 로그인</button>}
+      }}>관리자 로그아웃</button> : <button type="button" disabled={busy} aria-expanded={loginOpen} aria-controls="shortcut-login" onClick={() => setLoginOpen(!loginOpen)}>관리자 로그인</button>}
     </div>
-    {loginOpen && !admin && <form className="shortcut-login" onSubmit={(event) => {
+    {loginOpen && !admin && <form id="shortcut-login" className="shortcut-login" onSubmit={(event) => {
       event.preventDefault();
       void run(async () => {
-        await fetch("/api/shortcut-admin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password }) }).then(responseJson);
-        setPassword(""); setAdmin(true); setLoginOpen(false); setPreview(false);
-        if (!items.length) change([newShortcut()]);
+        const auth = await fetch("/api/shortcut-admin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password }), signal: AbortSignal.timeout(15000) }).then(responseJson);
+        setPassword(""); setAdmin(true); setConfigured(true); setStorage(auth.storage); setLoginOpen(false); setPreview(false);
+        if (ready && !items.length) change([newShortcut()]);
         setMessage("관리자로 로그인했습니다.");
       });
     }}>
-      {!configured && <p>관리자 설정이 필요합니다. 배포 설정 안내를 확인해 주세요.</p>}
+      {!configured && <p>서버에서 8자 이상의 관리자 비밀번호가 확인되지 않았습니다. 환경 변수 설정과 최신 배포를 확인해 주세요.</p>}
       <label>관리자 비밀번호<input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
-      <button type="submit" disabled={busy || !configured}>로그인</button>
+      <button type="submit" disabled={busy}>{busy ? "로그인 확인 중…" : "로그인"}</button>
     </form>}
     {admin && <p className="guide-pending">관리자만 수정할 수 있습니다. ‘저장·공개’를 누르면 모든 방문자에게 반영됩니다. 파일 업로드 후에도 저장 버튼을 눌러 주세요.</p>}
     {admin && !storage && <p role="alert" className="shortcut-error">Vercel Blob 저장소가 연결되지 않았습니다. 연결 후 파일 업로드와 저장을 사용할 수 있습니다.</p>}
-    <div role="status" aria-live="polite">{message || (ready ? dirty ? "저장하지 않은 변경이 있습니다." : "" : "숏컷 불러오는 중…")}</div>
+    <div role="status" aria-live="polite">{message || (ready ? dirty ? "저장하지 않은 변경이 있습니다." : "" : contentError ? "" : "숏컷 불러오는 중…")}</div>
+    {contentError && <div><p role="alert" className="shortcut-error">{contentError}</p><button type="button" disabled={busy} onClick={() => { setContentError(""); setLoadAttempt((attempt) => attempt + 1); }}>숏컷 다시 불러오기</button></div>}
     {error && <p role="alert" className="shortcut-error">{error}</p>}
     <fieldset disabled={!ready || busy} className="shortcut-controls">
       <legend className="shortcut-sr-only">숏컷 편집 도구</legend>
