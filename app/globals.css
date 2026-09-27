@@ -1,5 +1,39 @@
 @import "tailwindcss";
 
+/* Track shortcut authoring keeps the existing card, color and spacing system. */
+.shortcut-page-link { display: inline-block; margin-top: 16px; color: var(--primary); font-weight: 700; }
+.shortcut-workspace { min-width: 0; }
+.shortcut-controls { border: 0; padding: 0; margin: 20px 0 0; min-width: 0; }
+.shortcut-toolbar, .shortcut-template-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.shortcut-toolbar { justify-content: flex-start; }
+.shortcut-workspace button, .shortcut-file-button { display: inline-block; padding: 11px 16px; border: 1px solid var(--border); border-radius: 9px; background: var(--card); color: var(--foreground); font: inherit; font-weight: 700; cursor: pointer; }
+.shortcut-workspace button:disabled { opacity: .5; cursor: not-allowed; }
+.shortcut-workspace button:hover:not(:disabled), .shortcut-file-button:hover { border-color: var(--primary); }
+.shortcut-workspace .shortcut-primary { background: var(--primary); color: white; border-color: var(--primary); }
+.shortcut-workspace button:focus-visible, .shortcut-file-button:focus-within { outline: 3px solid var(--primary); outline-offset: 3px; }
+.shortcut-template, .shortcut-login { background: var(--card); padding: 28px; border: 1px solid var(--border); border-radius: 16px; margin-bottom: 24px; min-width: 0; }
+.shortcut-template h2 { font-size: 23px; margin: 0; overflow-wrap: anywhere; }
+.shortcut-template h3 { margin: 30px 0 16px; }
+.shortcut-template label, .shortcut-login label { display: flex; flex-direction: column; gap: 9px; margin: 16px 0; font-weight: 700; }
+.shortcut-workspace input, .shortcut-workspace textarea { width: 100%; min-width: 0; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font: inherit; background: var(--background); color: var(--foreground); }
+.shortcut-workspace textarea { resize: vertical; line-height: 1.7; }
+.shortcut-workspace input:focus, .shortcut-workspace textarea:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
+.shortcut-step { margin: 18px 0; padding: 22px; border: 1px solid var(--border); border-radius: 12px; }
+.shortcut-step h4 { margin: 0 0 14px; color: var(--primary); }
+.shortcut-step figure { margin: 20px 0; }
+.shortcut-step img { display: block; max-width: 100%; max-height: 720px; height: auto; border-radius: 8px; object-fit: contain; }
+.shortcut-step figcaption { margin-top: 10px; color: var(--muted); white-space: pre-wrap; overflow-wrap: anywhere; }
+.shortcut-prose { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.85; }
+.shortcut-video { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 12px; background: var(--dark); margin-top: 18px; }
+.shortcut-placeholder { padding: 40px 20px; border: 2px dashed var(--border); border-radius: 12px; color: var(--muted); text-align: center; }
+.shortcut-error { color: var(--primary-dark); line-height: 1.6; }
+.shortcut-sr-only, .shortcut-file-button input { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 600px) {
+  .shortcut-template, .shortcut-login { padding: 18px; }
+  .shortcut-step { padding: 14px; }
+  .shortcut-toolbar > button, .shortcut-file-button { width: 100%; text-align: center; }
+}
+
 :root {
   --background: #f6f7f9;
   --foreground: #15171a;
@@ -348,6 +382,7 @@ input {
 }
 
 .track-card {
+  display: block;
   overflow: hidden;
 
   background: var(--card);
@@ -367,6 +402,7 @@ input {
 }
 
 .track-image {
+  position: relative;
   height: 155px;
 
   display: flex;
@@ -511,11 +547,17 @@ input {
   justify-content: space-between;
 }
 
-.shortcut-bottom a {
+.shortcut-bottom .shortcut-link {
   color: var(--primary);
 
   font-size: 12px;
   font-weight: 800;
+}
+
+.track-card:focus-visible,
+.shortcut-card:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
 }
 
 
@@ -901,6 +943,42 @@ input {
   margin-bottom: 35px;
 }
 
+.track-view-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.track-view-selector select {
+  padding: 9px 13px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--card);
+  color: var(--dark);
+}
+
+.track-preview-list {
+  margin: 16px 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.track-preview-list li + li {
+  margin-top: 8px;
+}
+
+.track-list-card:focus-visible,
+.track-view-selector select:focus-visible,
+.search-button:focus-visible,
+.search-box:focus-within {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+}
+
 .track-search {
   max-width: 450px;
   width: 100%;
@@ -963,6 +1041,64 @@ input {
   gap: 18px;
 }
 
+.track-results-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.track-results-summary p {
+  margin: 0;
+}
+
+.track-reset {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 9px 13px;
+  background: var(--card);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tracks-empty {
+  grid-column: 1 / -1;
+  padding: 40px 24px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  text-align: center;
+}
+
+.tracks-empty h2 {
+  margin: 0 0 10px;
+  font-size: 21px;
+}
+
+.tracks-empty p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.track-search:focus-within {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.track-filters button:focus-visible,
+.track-reset:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 .track-list-card {
   overflow: hidden;
 
@@ -988,6 +1124,8 @@ input {
 }
 
 .track-list-image {
+  position: relative;
+  min-height: 170px;
   width: 40%;
 
   flex-shrink: 0;
@@ -1162,7 +1300,64 @@ input {
 }
 
 .track-map {
-  margin-bottom: 75px;
+  margin: 0 0 75px;
+}
+
+.track-image img,
+.track-list-image img {
+  object-fit: cover;
+}
+
+.track-detail-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.image-credit,
+.track-source-note,
+.guide-pending {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.image-credit {
+  margin-top: 12px;
+}
+
+.image-credit a,
+.track-source-note a,
+.related-courses a,
+.detail-info-grid a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.related-courses {
+  margin-top: 24px;
+}
+
+.related-courses a {
+  display: inline-block;
+  margin: 0 18px 12px 0;
+}
+
+.track-edition {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.difficulty.unrated {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: normal;
+  white-space: nowrap;
 }
 
 .map-placeholder {
@@ -1221,7 +1416,7 @@ input {
 .detail-info-grid {
   display: grid;
 
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -1237,8 +1432,12 @@ input {
   border-right: 1px solid var(--border);
 }
 
-.detail-info-grid > div:last-child {
+.detail-info-grid > div:nth-child(3n) {
   border-right: none;
+}
+
+.detail-info-grid > div:nth-child(n + 4) {
+  border-top: 1px solid var(--border);
 }
 
 .detail-info-grid span {
@@ -1487,12 +1686,15 @@ input {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .detail-info-grid > div:nth-child(2) {
+  .detail-info-grid > div:nth-child(3n) {
+    border-right: 1px solid var(--border);
+  }
+
+  .detail-info-grid > div:nth-child(2n) {
     border-right: none;
   }
 
-  .detail-info-grid > div:nth-child(3),
-  .detail-info-grid > div:nth-child(4) {
+  .detail-info-grid > div:nth-child(n + 3) {
     border-top: 1px solid var(--border);
   }
 }
@@ -1541,8 +1743,9 @@ input {
     grid-template-columns: 1fr;
   }
 
-  .detail-info-grid > div {
+  .detail-info-grid > div:nth-child(n) {
     border-right: none;
+    border-top: none;
     border-bottom: 1px solid var(--border);
   }
 

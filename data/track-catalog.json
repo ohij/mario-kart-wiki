@@ -1,0 +1,362 @@
+[
+  {
+    "name": "Mario Bros. Circuit",
+    "source": "https://www.mariowiki.com/Mario_Bros._Circuit",
+    "imageSource": "https://www.mariowiki.com/File:MKWd_Mario_Bros_Circuit_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/8/85/MKWd_Mario_Bros_Circuit_Icon.png",
+    "width": 429,
+    "height": 244,
+    "slug": "mario-bros-circuit"
+  },
+  {
+    "name": "Crown City",
+    "source": "https://www.mariowiki.com/Crown_City",
+    "imageSource": "https://www.mariowiki.com/File:MKWd_Crown_City_2_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/6/66/MKWd_Crown_City_2_Icon.png",
+    "width": 429,
+    "height": 242,
+    "slug": "crown-city"
+  },
+  {
+    "name": "Whistlestop Summit",
+    "source": "https://www.mariowiki.com/Whistlestop_Summit",
+    "imageSource": "https://www.mariowiki.com/File:MKWd_Whistlestop_Summit_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/d/db/MKWd_Whistlestop_Summit_Icon.png",
+    "width": 429,
+    "height": 244,
+    "slug": "whistlestop-summit"
+  },
+  {
+    "name": "DK Spaceport",
+    "source": "https://www.mariowiki.com/DK_Spaceport",
+    "imageSource": "https://www.mariowiki.com/File:MKWd_DK_Spaceport_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/8/89/MKWd_DK_Spaceport_Icon.png",
+    "width": 429,
+    "height": 244,
+    "slug": "dk-spaceport"
+  },
+  {
+    "name": "Desert Hills",
+    "source": "https://www.mariowiki.com/Desert_Hills",
+    "imageSource": "https://www.mariowiki.com/File:MKWd_Desert_Hills_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/6/6a/MKWd_Desert_Hills_Icon.png",
+    "width": 428,
+    "height": 244,
+    "slug": "desert-hills"
+  },
+  {
+    "name": "Shy Guy Bazaar",
+    "source": "https://www.mariowiki.com/Shy_Guy_Bazaar",
+    "imageSource": "https://www.mariowiki.com/File:MKWd_Shy_Guy_Bazaar_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/3/32/MKWd_Shy_Guy_Bazaar_Icon.png",
+    "width": 429,
+    "height": 244,
+    "slug": "shy-guy-bazaar"
+  },
+  {
+    "name": "Wario Stadium",
+    "source": "https://www.mariowiki.com/Wario_Stadium_(Mario_Kart_64)",
+    "imageSource": "https://www.mariowiki.com/File:MKWd_Wario_Stadium_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/3/34/MKWd_Wario_Stadium_Icon.png",
+    "width": 429,
+    "height": 242,
+    "slug": "wario-stadium"
+  },
+  {
+    "name": "Airship Fortress",
+    "source": "https://www.mariowiki.com/Airship_Fortress",
+    "imageSource": "https://www.mariowiki.com/File:MKWd_Airship_Fortress_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/c/c4/MKWd_Airship_Fortress_Icon.png",
+    "width": 429,
+    "height": 242,
+    "slug": "airship-fortress"
+  },
+  {
+    "name": "DK Pass",
+    "source": "https://www.mariowiki.com/DK_Pass",
+    "imageSource": "https://www.mariowiki.com/File:MKWd_DK_Pass_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/e/e1/MKWd_DK_Pass_Icon.png",
+    "width": 429,
+    "height": 242,
+    "slug": "dk-pass"
+  },
+  {
+    "name": "Starview Peak",
+    "source": "https://www.mariowiki.com/Starview_Peak",
+    "imageSource": "https://www.mariowiki.com/File:MKWd_Starview_Peak_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/c/c4/MKWd_Starview_Peak_Icon.png",
+    "width": 429,
+    "height": 242,
+    "slug": "starview-peak"
+  },
+  {
+    "name": "Sky-High Sundae",
+    "source": "https://www.mariowiki.com/Sky-High_Sundae",
+    "imageSource": "https://www.mariowiki.com/File:MKWd_Sky-High_Sundae_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/8/83/MKWd_Sky-High_Sundae_Icon.png",
+    "width": 429,
+    "height": 242,
+    "slug": "sky-high-sundae"
+  },
+  {
+    "name": "Wario Shipyard",
+    "source": "https://www.mariowiki.com/Wario_Shipyard",
+    "imageSource": "https://www.mariowiki.com/File:MKWd_Wario_Shipyard_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/b/b4/MKWd_Wario_Shipyard_Icon.png",
+    "width": 429,
+    "height": 242,
+    "slug": "wario-shipyard"
+  },
+  {
+    "name": "Koopa Troopa Beach",
+    "source": "https://www.mariowiki.com/Koopa_Troopa_Beach_(Super_Mario_Kart)",
+    "imageSource": "https://www.mariowiki.com/File:MKWd_Koopa_Troopa_Beach_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/c/c2/MKWd_Koopa_Troopa_Beach_Icon.png",
+    "width": 429,
+    "height": 242,
+    "slug": "koopa-troopa-beach"
+  },
+  {
+    "name": "Faraway Oasis",
+    "source": "https://www.mariowiki.com/Faraway_Oasis",
+    "imageSource": "https://www.mariowiki.com/File:MKWd_Faraway_Oasis_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/5/5d/MKWd_Faraway_Oasis_Icon.png",
+    "width": 429,
+    "height": 242,
+    "slug": "faraway-oasis"
+  },
+  {
+    "name": "Peach Stadium",
+    "source": "https://www.mariowiki.com/Peach_Stadium",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_Peach_Stadium_icon_2.png",
+    "imageUrl": "https://mario.wiki.gallery/images/7/7e/MKWorld_Peach_Stadium_icon_2.png",
+    "width": 856,
+    "height": 486,
+    "slug": "peach-stadium"
+  },
+  {
+    "name": "Peach Beach",
+    "source": "https://www.mariowiki.com/Peach_Beach",
+    "imageSource": "https://www.mariowiki.com/File:Peach-Beach-MarioKartWorld.jpg",
+    "imageUrl": "https://mario.wiki.gallery/images/e/e3/Peach-Beach-MarioKartWorld.jpg",
+    "width": 859,
+    "height": 487,
+    "slug": "peach-beach"
+  },
+  {
+    "name": "Salty Salty Speedway",
+    "source": "https://www.mariowiki.com/Salty_Salty_Speedway",
+    "imageSource": "https://www.mariowiki.com/File:Salty_Salty_Speedway_Mario_Kart_World.jpg",
+    "imageUrl": "https://mario.wiki.gallery/images/d/d8/Salty_Salty_Speedway_Mario_Kart_World.jpg",
+    "width": 872,
+    "height": 492,
+    "slug": "salty-salty-speedway"
+  },
+  {
+    "name": "Dino Dino Jungle",
+    "source": "https://www.mariowiki.com/Dino_Dino_Jungle",
+    "imageSource": "https://www.mariowiki.com/File:Dino_Dino_Jungle_Mario_Kart_World.png",
+    "imageUrl": "https://mario.wiki.gallery/images/6/67/Dino_Dino_Jungle_Mario_Kart_World.png",
+    "width": 862,
+    "height": 485,
+    "slug": "dino-dino-jungle"
+  },
+  {
+    "name": "Great ? Block Ruins",
+    "source": "https://www.mariowiki.com/Great_%3F_Block_Ruins",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_Question_Ruins_icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/5/5e/MKWorld_Question_Ruins_icon.png",
+    "width": 862,
+    "height": 488,
+    "slug": "great-block-ruins"
+  },
+  {
+    "name": "Cheep Cheep Falls",
+    "source": "https://www.mariowiki.com/Cheep_Cheep_Falls_(race_course)",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_Cheep_Cheep_Falls_icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/0/06/MKWorld_Cheep_Cheep_Falls_icon.png",
+    "width": 431,
+    "height": 245,
+    "slug": "cheep-cheep-falls"
+  },
+  {
+    "name": "Dandelion Depths",
+    "source": "https://www.mariowiki.com/Dandelion_Depths",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_Dandelion_Depths_icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/7/70/MKWorld_Dandelion_Depths_icon.png",
+    "width": 431,
+    "height": 245,
+    "slug": "dandelion-depths"
+  },
+  {
+    "name": "Boo Cinema",
+    "source": "https://www.mariowiki.com/Boo_Cinema",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_Boo_Cinema_icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/0/08/MKWorld_Boo_Cinema_icon.png",
+    "width": 431,
+    "height": 245,
+    "slug": "boo-cinema"
+  },
+  {
+    "name": "Dry Bones Burnout",
+    "source": "https://www.mariowiki.com/Dry_Bones_Burnout",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_Dry_Bones_Burnout_icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/0/01/MKWorld_Dry_Bones_Burnout_icon.png",
+    "width": 431,
+    "height": 245,
+    "slug": "dry-bones-burnout"
+  },
+  {
+    "name": "Moo Moo Meadows",
+    "source": "https://www.mariowiki.com/Moo_Moo_Meadows",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_Moo_Moo_Meadows_icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/4/42/MKWorld_Moo_Moo_Meadows_icon.png",
+    "width": 430,
+    "height": 243,
+    "slug": "moo-moo-meadows"
+  },
+  {
+    "name": "Choco Mountain",
+    "source": "https://www.mariowiki.com/Choco_Mountain",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_Choco_Mountain_icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/b/b1/MKWorld_Choco_Mountain_icon.png",
+    "width": 430,
+    "height": 243,
+    "slug": "choco-mountain"
+  },
+  {
+    "name": "Toad's Factory",
+    "source": "https://www.mariowiki.com/Toad%27s_Factory",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_Toads_Factory_icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/1/1e/MKWorld_Toads_Factory_icon.png",
+    "width": 430,
+    "height": 243,
+    "slug": "toads-factory"
+  },
+  {
+    "name": "Bowser's Castle",
+    "source": "https://www.mariowiki.com/Bowser%27s_Castle_(Mario_Kart_World)",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_Bowsers_Castle_icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/8/86/MKWorld_Bowsers_Castle_icon.png",
+    "width": 430,
+    "height": 243,
+    "slug": "bowsers-castle"
+  },
+  {
+    "name": "Acorn Heights",
+    "source": "https://www.mariowiki.com/Acorn_Heights",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_Acorn_Heights_Icon.jpg",
+    "imageUrl": "https://mario.wiki.gallery/images/5/5a/MKWorld_Acorn_Heights_Icon.jpg",
+    "width": 433,
+    "height": 248,
+    "slug": "acorn-heights"
+  },
+  {
+    "name": "Mario Circuit",
+    "source": "https://www.mariowiki.com/Mario_Circuit_(Mario_Kart_World)",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_Mario_Circuit_icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/f/f0/MKWorld_Mario_Circuit_icon.png",
+    "width": 856,
+    "height": 486,
+    "slug": "mario-circuit"
+  },
+  {
+    "name": "Rainbow Road",
+    "source": "https://www.mariowiki.com/Rainbow_Road_(Mario_Kart_World)",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_Rainbow_Road_icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/8/88/MKWorld_Rainbow_Road_icon.png",
+    "width": 856,
+    "height": 486,
+    "slug": "rainbow-road"
+  },
+  {
+    "name": "SNES Mario Circuit 1",
+    "source": "https://www.mariowiki.com/Mario_Circuit_1",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_SNES_Mario_Circuit_1_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/8/87/MKWorld_SNES_Mario_Circuit_1_Icon.png",
+    "width": 961,
+    "height": 620,
+    "slug": "snes-mario-circuit-1"
+  },
+  {
+    "name": "SNES Mario Circuit 2",
+    "source": "https://www.mariowiki.com/Mario_Circuit_2",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_SNES_Mario_Circuit_2_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/3/38/MKWorld_SNES_Mario_Circuit_2_Icon.png",
+    "width": 1080,
+    "height": 688,
+    "slug": "snes-mario-circuit-2"
+  },
+  {
+    "name": "SNES Mario Circuit 3",
+    "source": "https://www.mariowiki.com/Mario_Circuit_3",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_SNES_Mario_Circuit_3_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/5/57/MKWorld_SNES_Mario_Circuit_3_Icon.png",
+    "width": 1080,
+    "height": 682,
+    "slug": "snes-mario-circuit-3"
+  },
+  {
+    "name": "SNES Ghost Valley 1",
+    "source": "https://www.mariowiki.com/Ghost_Valley_1",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_SNES_Ghost_Valley_1_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/f/f0/MKWorld_SNES_Ghost_Valley_1_Icon.png",
+    "width": 1057,
+    "height": 674,
+    "slug": "snes-ghost-valley-1"
+  },
+  {
+    "name": "SNES Ghost Valley 2",
+    "source": "https://www.mariowiki.com/Ghost_Valley_2",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_SNES_Ghost_Valley_2_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/6/65/MKWorld_SNES_Ghost_Valley_2_Icon.png",
+    "width": 964,
+    "height": 597,
+    "slug": "snes-ghost-valley-2"
+  },
+  {
+    "name": "SNES Ghost Valley 3",
+    "source": "https://www.mariowiki.com/Ghost_Valley_3",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_SNES_Ghost_Valley_3_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/0/08/MKWorld_SNES_Ghost_Valley_3_Icon.png",
+    "width": 1080,
+    "height": 656,
+    "slug": "snes-ghost-valley-3"
+  },
+  {
+    "name": "SNES Choco Island 1",
+    "source": "https://www.mariowiki.com/Choco_Island_1",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_SNES_Choco_Island_1_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/d/d1/MKWorld_SNES_Choco_Island_1_Icon.png",
+    "width": 1080,
+    "height": 666,
+    "slug": "snes-choco-island-1"
+  },
+  {
+    "name": "SNES Choco Island 2",
+    "source": "https://www.mariowiki.com/Choco_Island_2",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_SNES_Choco_Island_2_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/d/d4/MKWorld_SNES_Choco_Island_2_Icon.png",
+    "width": 1053,
+    "height": 651,
+    "slug": "snes-choco-island-2"
+  },
+  {
+    "name": "SNES Koopa Beach 1",
+    "source": "https://www.mariowiki.com/Koopa_Beach_1",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_SNES_Koopa_Beach_1_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/c/ce/MKWorld_SNES_Koopa_Beach_1_Icon.png",
+    "width": 1080,
+    "height": 690,
+    "slug": "snes-koopa-beach-1"
+  },
+  {
+    "name": "SNES Vanilla Lake 1",
+    "source": "https://www.mariowiki.com/Vanilla_Lake_1",
+    "imageSource": "https://www.mariowiki.com/File:MKWorld_SNES_Vanilla_Lake_1_Icon.png",
+    "imageUrl": "https://mario.wiki.gallery/images/2/25/MKWorld_SNES_Vanilla_Lake_1_Icon.png",
+    "width": 1080,
+    "height": 680,
+    "slug": "snes-vanilla-lake-1"
+  }
+]

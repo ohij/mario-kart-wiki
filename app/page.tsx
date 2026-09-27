@@ -1,47 +1,17 @@
-const tracks = [
-  {
-    name: "Mario Circuit",
-    game: "Mario Kart World",
-    difficulty: 2,
-    description: "A classic circuit-style track.",
-  },
-  {
-    name: "Peach Stadium",
-    game: "Mario Kart World",
-    difficulty: 3,
-    description: "A technical track with challenging sections.",
-  },
-  {
-    name: "Whistlestop Summit",
-    game: "Mario Kart World",
-    difficulty: 4,
-    description: "A mountain track featuring elevation changes.",
-  },
-  {
-    name: "Dandelion Depths",
-    game: "Mario Kart World",
-    difficulty: 3,
-    description: "An off-road focused course.",
-  },
-];
+import Link from "next/link";
+import Image from "next/image";
+import { tracks } from "@/data/tracks";
 
-const shortcuts = [
-  {
-    name: "Mario Circuit Shortcut",
-    track: "Mario Circuit",
-    difficulty: 2,
-  },
-  {
-    name: "Peach Stadium Jump",
-    track: "Peach Stadium",
-    difficulty: 3,
-  },
-  {
-    name: "Summit Mountain Cut",
-    track: "Whistlestop Summit",
-    difficulty: 4,
-  },
-];
+const featuredTracks = ["mario-circuit", "peach-stadium", "whistlestop-summit", "dandelion-depths"]
+  .flatMap((slug) => tracks.filter((track) => track.slug === slug));
+
+const shortcuts = tracks.flatMap((track) =>
+  track.shortcuts.map((shortcut) => ({
+    ...shortcut,
+    track: track.name,
+    trackSlug: track.slug,
+  }))
+);
 
 const mechanics = [
   {
@@ -79,7 +49,8 @@ const strategies = [
   },
 ];
 
-function Difficulty({ level }: { level: number }) {
+function Difficulty({ level }: { level: number | null }) {
+  if (level === null) return <span className="difficulty unrated">Not rated</span>;
   return (
     <span className="difficulty">
       {"★".repeat(level)}
@@ -96,10 +67,10 @@ export default function Home() {
       <header className="navbar">
         <div className="nav-inner">
 
-          <a href="/" className="logo">
+          <Link href="/" className="logo">
             <span className="logo-icon">🏎️</span>
             <span>MARIO KART WIKI</span>
-          </a>
+          </Link>
 
           <nav className="nav-links">
             <a href="#tracks">Tracks</a>
@@ -108,9 +79,9 @@ export default function Home() {
             <a href="#strategies">Strategies</a>
           </nav>
 
-          <button className="search-button">
+          <Link href="/tracks#track-search" className="search-button">
             🔍 Search
-          </button>
+          </Link>
 
         </div>
       </header>
@@ -135,23 +106,25 @@ export default function Home() {
             shortcuts, mechanics and racing strategies.
           </p>
 
-          <div className="search-box">
-            <span>🔍</span>
+          <form action="/tracks" method="get" role="search" className="search-box">
+            <span aria-hidden="true">🔍</span>
             <input
-              type="text"
+              type="search"
+              name="q"
+              aria-label="Search tracks and related content"
               placeholder="Search the Mario Kart Wiki..."
             />
-            <button>Search</button>
-          </div>
+            <button type="submit">Search</button>
+          </form>
 
           <div className="hero-stats">
             <div>
-              <strong>4</strong>
+              <strong>{tracks.length}</strong>
               <span>Tracks</span>
             </div>
 
             <div>
-              <strong>3</strong>
+              <strong>{shortcuts.length}</strong>
               <span>Shortcuts</span>
             </div>
 
@@ -183,26 +156,31 @@ export default function Home() {
             </p>
           </div>
 
-          <a href="/tracks" className="view-all">
+          <Link href="/tracks" className="view-all">
             View all →
-          </a>
+          </Link>
         </div>
 
 
         <div className="card-grid">
 
-          {tracks.map((track) => (
-            <article className="track-card" key={track.name}>
+          {featuredTracks.map((track) => (
+            <Link
+              href={"/tracks/" + track.slug}
+              className="track-card"
+              key={track.slug}
+              aria-label={`View track: ${track.name}`}
+            >
 
               <div className="track-image">
-                <span>MAP</span>
+                <Image src={track.image.src} alt={track.image.alt} fill sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 25vw" />
               </div>
 
               <div className="card-content">
 
                 <div className="card-top">
                   <span className="game-tag">
-                    Mario Kart World
+                    {track.game}
                   </span>
 
                   <Difficulty level={track.difficulty} />
@@ -210,15 +188,15 @@ export default function Home() {
 
                 <h3>{track.name}</h3>
 
-                <p>{track.description}</p>
+                <p>{track.summary}</p>
 
-                <a href="#" className="card-link">
+                <span className="card-link">
                   View track →
-                </a>
+                </span>
 
               </div>
 
-            </article>
+            </Link>
           ))}
 
         </div>
@@ -238,16 +216,21 @@ export default function Home() {
             </p>
           </div>
 
-          <a href="#shortcuts" className="view-all">
+          <Link href="/tracks?view=shortcuts" className="view-all">
             View all →
-          </a>
+          </Link>
         </div>
 
 
         <div className="shortcut-grid">
 
-          {shortcuts.map((shortcut) => (
-            <article className="shortcut-card" key={shortcut.name}>
+          {shortcuts.slice(0, 3).map((shortcut) => (
+            <Link
+              href={`/tracks/${shortcut.trackSlug}/shortcuts`}
+              className="shortcut-card"
+              key={`${shortcut.trackSlug}-${shortcut.name}`}
+              aria-label={`Learn shortcut: ${shortcut.name}`}
+            >
 
               <div className="shortcut-number">
                 ✂️
@@ -264,14 +247,14 @@ export default function Home() {
                 <div className="shortcut-bottom">
                   <Difficulty level={shortcut.difficulty} />
 
-                  <a href="#">
+                  <span className="shortcut-link">
                     Learn →
-                  </a>
+                  </span>
                 </div>
 
               </div>
 
-            </article>
+            </Link>
           ))}
 
         </div>
@@ -291,9 +274,9 @@ export default function Home() {
             </p>
           </div>
 
-          <a href="#mechanics" className="view-all">
+          <Link href="/tracks?view=mechanics" className="view-all">
             View all →
-          </a>
+          </Link>
         </div>
 
 
@@ -310,9 +293,9 @@ export default function Home() {
 
               <p>{mechanic.description}</p>
 
-              <a href="#">
-                Learn more →
-              </a>
+              <Link href={`/tracks?view=mechanics&q=${encodeURIComponent(mechanic.name)}`}>
+                Find related tracks →
+              </Link>
 
             </article>
           ))}
@@ -334,9 +317,9 @@ export default function Home() {
             </p>
           </div>
 
-          <a href="#strategies" className="view-all">
+          <Link href="/tracks?view=strategies" className="view-all">
             View all →
-          </a>
+          </Link>
         </div>
 
 
@@ -353,9 +336,9 @@ export default function Home() {
 
               <p>{strategy.description}</p>
 
-              <a href="#">
-                Learn more →
-              </a>
+              <Link href="/tracks?view=strategies">
+                Browse track strategies →
+              </Link>
 
             </article>
           ))}

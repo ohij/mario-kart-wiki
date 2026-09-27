@@ -1,208 +1,12 @@
+import Link from "next/link";
+import Image from "next/image";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-const tracks = {
-  "mario-circuit": {
-    name: "Mario Circuit",
-    type: "Circuit",
-    difficulty: 2,
-    description:
-      "A classic circuit-style course featuring straightforward corners and several opportunities for efficient drifting.",
+import { tracks, updateSource } from "@/data/tracks";
 
-    sections: [
-      {
-        number: 1,
-        name: "Starting Straight",
-        description:
-          "The opening section leading into the first major corner.",
-      },
-      {
-        number: 2,
-        name: "Main Corner",
-        description:
-          "A technical corner where maintaining a good racing line is important.",
-      },
-      {
-        number: 3,
-        name: "Final Section",
-        description:
-          "The final section before returning to the starting line.",
-      },
-    ],
-
-    shortcuts: [
-      {
-        name: "Mario Circuit Shortcut",
-        difficulty: 2,
-        description:
-          "A shortcut that can reduce the distance travelled through the course.",
-      },
-    ],
-
-    strategies: [
-      "Maintain a tight racing line through corners.",
-      "Build Mini-Turbo whenever the corner allows it.",
-      "Save defensive items when approaching important sections.",
-    ],
-
-    mechanics: [
-      "Drifting",
-      "Mini-Turbo",
-      "Jump Action",
-    ],
-  },
-
-  "peach-stadium": {
-    name: "Peach Stadium",
-    type: "Stadium",
-    difficulty: 3,
-    description:
-      "A stadium-themed course with technical sections and opportunities for advanced movement.",
-
-    sections: [
-      {
-        number: 1,
-        name: "Stadium Entrance",
-        description:
-          "The opening section of the course.",
-      },
-      {
-        number: 2,
-        name: "Main Stadium",
-        description:
-          "A technical section requiring careful positioning.",
-      },
-      {
-        number: 3,
-        name: "Final Turn",
-        description:
-          "The final section before the finish.",
-      },
-    ],
-
-    shortcuts: [
-      {
-        name: "Peach Stadium Jump",
-        difficulty: 3,
-        description:
-          "A jump-based shortcut requiring precise timing.",
-      },
-    ],
-
-    strategies: [
-      "Prepare your racing line before entering technical corners.",
-      "Use jumps efficiently to maintain momentum.",
-      "Avoid unnecessary steering corrections.",
-    ],
-
-    mechanics: [
-      "Drifting",
-      "Jump Action",
-      "Mini-Turbo",
-    ],
-  },
-
-  "whistlestop-summit": {
-    name: "Whistlestop Summit",
-    type: "Mountain",
-    difficulty: 4,
-    description:
-      "A mountain course featuring elevation changes and more demanding sections.",
-
-    sections: [
-      {
-        number: 1,
-        name: "Mountain Approach",
-        description:
-          "The opening climb toward the main mountain section.",
-      },
-      {
-        number: 2,
-        name: "Summit",
-        description:
-          "A difficult section with significant elevation changes.",
-      },
-      {
-        number: 3,
-        name: "Descent",
-        description:
-          "A downhill section leading toward the finish.",
-      },
-    ],
-
-    shortcuts: [
-      {
-        name: "Summit Mountain Cut",
-        difficulty: 4,
-        description:
-          "An advanced shortcut through the mountain section.",
-      },
-    ],
-
-    strategies: [
-      "Plan your racing line around elevation changes.",
-      "Avoid losing speed during transitions.",
-      "Use advanced movement techniques where appropriate.",
-    ],
-
-    mechanics: [
-      "Drifting",
-      "Jump Action",
-      "Mini-Turbo",
-    ],
-  },
-
-  "dandelion-depths": {
-    name: "Dandelion Depths",
-    type: "Off-road",
-    difficulty: 3,
-    description:
-      "A varied course featuring off-road terrain and changing track surfaces.",
-
-    sections: [
-      {
-        number: 1,
-        name: "Opening Path",
-        description:
-          "The opening section of the course.",
-      },
-      {
-        number: 2,
-        name: "Depths",
-        description:
-          "A section featuring more varied terrain.",
-      },
-      {
-        number: 3,
-        name: "Final Path",
-        description:
-          "The final approach toward the finish.",
-      },
-    ],
-
-    shortcuts: [
-      {
-        name: "Depths Shortcut",
-        difficulty: 3,
-        description:
-          "A route that cuts through part of the course.",
-      },
-    ],
-
-    strategies: [
-      "Manage your speed carefully on changing surfaces.",
-      "Choose the best line before entering off-road sections.",
-      "Keep useful items available for difficult sections.",
-    ],
-
-    mechanics: [
-      "Drifting",
-      "Mini-Turbo",
-      "Off-road Movement",
-    ],
-  },
-};
-
-function Difficulty({ level }: { level: number }) {
+function Difficulty({ level }: { level: number | null }) {
+  if (level === null) return <span className="difficulty unrated">Not rated</span>;
   return (
     <span className="difficulty large">
       {"★".repeat(level)}
@@ -213,6 +17,16 @@ function Difficulty({ level }: { level: number }) {
   );
 }
 
+export function generateStaticParams() {
+  return tracks.map((track) => ({ slug: track.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const track = tracks.find((track) => track.slug === slug);
+  return track ? { title: `${track.name} | Mario Kart World Wiki`, description: track.summary } : { title: "Track not found" };
+}
+
 export default async function TrackPage({
   params,
 }: {
@@ -220,12 +34,13 @@ export default async function TrackPage({
 }) {
   const { slug } = await params;
 
-  const track =
-    tracks[slug as keyof typeof tracks];
+  const track = tracks.find((track) => track.slug === slug);
 
   if (!track) {
     notFound();
   }
+  const parent = tracks.find((entry) => entry.slug === track.parentSlug);
+  const subCourses = tracks.filter((entry) => entry.parentSlug === track.slug);
 
   return (
     <main className="track-detail-page">
@@ -236,16 +51,16 @@ export default async function TrackPage({
 
         <div className="track-detail-inner">
 
-          <a href="/tracks" className="back-link">
+          <Link href="/tracks" className="back-link">
             ← All Tracks
-          </a>
+          </Link>
 
           <div className="track-detail-heading">
 
             <div>
 
               <span className="section-label">
-                MARIO KART WORLD · {track.type.toUpperCase()}
+                {track.game.toUpperCase()} · {track.type.toUpperCase()}
               </span>
 
               <h1>{track.name}</h1>
@@ -258,7 +73,7 @@ export default async function TrackPage({
 
             <div className="detail-difficulty">
 
-              <span>Difficulty</span>
+              <span>Wiki difficulty</span>
 
               <Difficulty
                 level={track.difficulty}
@@ -277,16 +92,12 @@ export default async function TrackPage({
 
       <section className="track-detail-content">
 
-        <div className="track-map">
-
-          <div className="map-placeholder">
-            <span>TRACK MAP</span>
-            <small>
-              Interactive map coming soon
-            </small>
-          </div>
-
-        </div>
+        <figure className="track-map">
+          <Image className="track-detail-image" src={track.image.src} alt={track.image.alt} width={track.image.width} height={track.image.height} sizes="(max-width: 1152px) 100vw, 1104px" loading="eager" />
+          <figcaption className="image-credit">
+            Course selection image · © Nintendo · <a href={track.image.source} target="_blank" rel="noreferrer">Image source: Super Mario Wiki</a>
+          </figcaption>
+        </figure>
 
 
         {/* Basic Information */}
@@ -307,7 +118,7 @@ export default async function TrackPage({
 
             <div>
               <span>Game</span>
-              <strong>Mario Kart World</strong>
+              <strong>{track.game}</strong>
             </div>
 
             <div>
@@ -324,10 +135,29 @@ export default async function TrackPage({
 
             <div>
               <span>Sections</span>
-              <strong>{track.sections.length}</strong>
+              <strong>{track.sections.length ? `${track.sections.length} in this guide` : "Guide pending"}</strong>
+            </div>
+
+            <div>
+              <span>Available since</span>
+              <strong>{track.introducedIn === "1.8.0" ? "Ver. 1.8.0" : "Launch"}</strong>
+            </div>
+            <div>
+              <span>{parent ? "Select from" : "Grand Prix"}</span>
+              <strong>{parent ? <Link href={`/tracks/${parent.slug}`}>{parent.name} →</Link> : track.cups.join(" / ")}</strong>
             </div>
 
           </div>
+
+          {parent && <p className="track-source-note">Available in VS Race, Time Trials, Online Play and Wireless Play from Ver. 1.8.0. This SNES sub-course uses item panels and is not a separate Grand Prix race. <a href={updateSource} target="_blank" rel="noreferrer">Nintendo update notes →</a></p>}
+          <p className="track-source-note">Course reference: <a href={track.source} target="_blank" rel="noreferrer">{track.name} on Super Mario Wiki →</a></p>
+
+          {subCourses.length > 0 && (
+            <div className="related-courses">
+              <h3>SNES courses · Ver. 1.8.0</h3>
+              {subCourses.map((entry) => <Link key={entry.slug} href={`/tracks/${entry.slug}`}>{entry.name} →</Link>)}
+            </div>
+          )}
 
         </section>
 
@@ -347,6 +177,7 @@ export default async function TrackPage({
           </div>
 
           <div className="sections-list">
+            {track.sections.length === 0 && <p className="guide-pending">A section-by-section guide has not been added yet.</p>}
 
             {track.sections.map((section) => (
 
@@ -378,7 +209,7 @@ export default async function TrackPage({
 
         {/* Shortcuts */}
 
-        <section className="detail-section">
+        <section id="shortcuts" className="detail-section">
 
           <div className="detail-title">
 
@@ -388,9 +219,14 @@ export default async function TrackPage({
 
             <h2>✂️ Shortcuts</h2>
 
+            <Link className="shortcut-page-link" href={`/tracks/${track.slug}/shortcuts`}>
+              숏컷 영상·방법 보기 / 직접 작성 →
+            </Link>
+
           </div>
 
           <div className="detail-shortcuts">
+            {track.shortcuts.length === 0 && <p className="guide-pending">No shortcut guide has been added yet.</p>}
 
             {track.shortcuts.map((shortcut) => (
 
@@ -417,8 +253,8 @@ export default async function TrackPage({
 
                   <p>{shortcut.description}</p>
 
-                  <a href="#">
-                    Learn how to perform it →
+                  <a href="#strategies">
+                    View track strategies →
                   </a>
 
                 </div>
@@ -434,7 +270,7 @@ export default async function TrackPage({
 
         {/* Strategies */}
 
-        <section className="detail-section">
+        <section id="strategies" className="detail-section">
 
           <div className="detail-title">
 
@@ -447,6 +283,7 @@ export default async function TrackPage({
           </div>
 
           <div className="strategy-list">
+            {track.strategies.length === 0 && <p className="guide-pending">Track-specific strategies have not been added yet.</p>}
 
             {track.strategies.map(
               (strategy, index) => (
@@ -474,7 +311,7 @@ export default async function TrackPage({
 
         {/* Mechanics */}
 
-        <section className="detail-section">
+        <section id="mechanics" className="detail-section">
 
           <div className="detail-title">
 
@@ -487,12 +324,13 @@ export default async function TrackPage({
           </div>
 
           <div className="mechanic-tags">
+            {track.mechanics.length === 0 && <p className="guide-pending">Related techniques have not been documented yet.</p>}
 
             {track.mechanics.map((mechanic) => (
 
-              <a href="#" key={mechanic}>
+              <Link href={`/tracks?view=mechanics&q=${encodeURIComponent(mechanic)}`} key={mechanic} title={`Find tracks using ${mechanic}`}>
                 ⚙️ {mechanic}
-              </a>
+              </Link>
 
             ))}
 
