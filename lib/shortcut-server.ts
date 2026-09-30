@@ -1,25 +1,21 @@
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
+import { mkdir, readFile, writeFile, rename, rm } from "node:fs/promises";
+import path from "node:path";
 import { get, put, BlobPreconditionFailedError } from "@vercel/blob";
 import type { NextRequest } from "next/server";
-import { parseBackup, type ShortcutBackup } from "./shortcut-drafts";
+import { parseBackup, publicationIssues, type ShortcutBackup } from "./shortcut-drafts";
+import type { Track } from "../data/tracks";
+import { publishedTrack } from "./shortcut-content";
 
-export const storageConfigured = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
-export const cookieName = "mkw-admin";
-export const adminConfigured = () => (process.env.SHORTCUT_ADMIN_PASSWORD?.length ?? 0) >= 8;
-const digest = (value: string) => createHash("sha256").update(value).digest();
-export function validPassword(value: string) { return adminConfigured() && timingSafeEqual(digest(value), digest(process.env.SHORTCUT_ADMIN_PASSWORD!)); }
-const signature = (value: string) => createHmac("sha256", process.env.SHORTCUT_ADMIN_PASSWORD!).update(`shortcut-admin:${value}`).digest("hex");
-export function sessionToken() { const expires = String(Date.now() + 8 * 60 * 60 * 1000); return `${expires}.${signature(expires)}`; }
-export function isAdmin(request: NextRequest) {
-  if (!adminConfigured()) return false;
-  const token = request.cookies.get(cookieName)?.value ?? "";
-  const [expires, signed] = token.split(".");
-  return /^\d+$/.test(expires ?? "") && Number(expires) > Date.now() && /^[a-f0-9]{64}$/.test(signed ?? "") && timingSafeEqual(Buffer.from(signed, "hex"), Buffer.from(signature(expires), "hex"));
-}
+export const localStorageEnabled = () => process.env.SHORTCUT_STORAGE === "local" && !process.env.VERCEL;
+export const localStorageRoot = path.join(process.cwd(), ".shortcut-data");
+export const storageConfigured = () => localStorageEnabled() || Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+export { cookieName, adminConfigured, isAdmin, sessionToken } from "./admin-auth";
+export const requestOrigin = (request: NextRequest) => `${request.nextUrl.protocol}//${request.headers.get("host")}`;
 export function sameOrigin(request: NextRequest) {
   const origin = request.headers.get("origin");
   if (!origin) return false;
-  try { return new URL(origin).host === request.headers.get("host"); } catch { return false; }
+  try { return new URL(origin).origin === requestOrigin(request); } catch { return false; }
 }
 export async function readJsonBody(request: Request, limit: number): Promise<unknown> {
   const reader = request.body?.getReader();
@@ -34,20 +30,64 @@ export async function readJsonBody(request: Request, limit: number): Promise<unk
   return JSON.parse(Buffer.concat(chunks).toString("utf8"));
 }
 export async function loadShortcuts(slug: string) {
+  if (localStorageEnabled()) {
+    if (!/^[a-z0-9-]+$/.test(slug)) throw new Error("올바르지 않은 트랙입니다.");
+    let raw: string;
+    try { raw = await readFile(path.join(localStorageRoot, `${slug}.json`), "utf8"); }
+    catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return { data: null, revision: "empty" }; throw error; }
+    return { data: parseBackup(JSON.parse(raw), slug), revision: createHash("sha256").update(raw).digest("hex") };
+  }
   if (!storageConfigured()) return { data: null, revision: "empty" };
   const result = await get(`shortcuts/content/${slug}.json`, { access: "public", useCache: false });
   if (!result) return { data: null, revision: "empty" };
   if (result.statusCode !== 200) throw new Error("숏컷 데이터를 읽지 못했습니다.");
   return { data: parseBackup(await new Response(result.stream).json(), slug), revision: result.blob.etag };
 }
+export async function loadPublishedTrack(track: Track): Promise<Track> {
+  const { data } = await loadShortcuts(track.slug);
+  return publishedTrack(track, data);
+}
+
+export async function loadPublishedTracks(tracks: Track[]): Promise<Track[]> {
+  // Bound concurrent storage reads; only compact summaries cross the client boundary.
+  const result: Track[] = [];
+  for (let index = 0; index < tracks.length; index += 8) {
+    result.push(...await Promise.all(tracks.slice(index, index + 8).map(loadPublishedTrack)));
+  }
+  return result;
+}
+
+export class ShortcutConflictError extends Error {}
+
 export async function saveShortcuts(slug: string, input: unknown, revision: string | null) {
   if (!storageConfigured()) throw new Error("Vercel Blob 저장소를 먼저 연결해 주세요.");
-  const data = parseBackup(input, slug);
+  const data = parseBackup(input, slug, false);
+  const issues = publicationIssues(data.shortcuts);
+  if (issues.length) throw new Error(issues.map((issue) => issue.message).join("\n"));
   if (!revision) throw new Error("페이지를 새로고침한 뒤 다시 저장해 주세요.");
-  const stored: ShortcutBackup = { version: 1, track: slug, shortcuts: data.shortcuts.map((item) => ({
-    id: item.id, title: item.title, requirements: item.requirements, video: item.video,
+  const previous = await loadShortcuts(slug);
+  if (previous.revision !== revision) throw new ShortcutConflictError("다른 탭에서 공개 내용이 변경되었습니다. 내 초안은 유지됩니다. 최신 공개 내용을 확인해 주세요.");
+  const stored: ShortcutBackup = { version: 1, track: slug, updatedAt: new Date().toISOString(),
+    researchStatus: data.shortcuts.length ? "unreviewed" : data.researchStatus ?? (previous.data?.shortcuts.length === 0 ? previous.data.researchStatus : undefined) ?? "unreviewed",
+    shortcuts: data.shortcuts.map((item) => ({
+    id: item.id, title: item.title, summary: item.summary ?? "", difficulty: item.difficulty ?? null, requirements: item.requirements, video: item.video,
     steps: item.steps.map((step) => ({ id: step.id, text: step.text, caption: step.caption, image: step.image })),
   })) };
+  if (localStorageEnabled()) {
+    if (!/^[a-z0-9-]+$/.test(slug)) throw new Error("올바르지 않은 트랙입니다.");
+    await mkdir(localStorageRoot, { recursive: true });
+    const lock = path.join(localStorageRoot, `${slug}.lock`);
+    try { await mkdir(lock); }
+    catch (error) { if ((error as NodeJS.ErrnoException).code === "EEXIST") throw new ShortcutConflictError("다른 탭에서 저장이 진행 중입니다. 잠시 후 최신 공개 내용을 확인해 주세요."); throw error; }
+    const temporary = path.join(localStorageRoot, `${slug}.${randomUUID()}.tmp`);
+    try {
+      if ((await loadShortcuts(slug)).revision !== revision) throw new ShortcutConflictError("다른 탭에서 공개 내용이 변경되었습니다. 내 초안은 유지됩니다. 최신 공개 내용을 확인해 주세요.");
+      const raw = JSON.stringify(stored);
+      await writeFile(temporary, raw, { flag: "wx" });
+      await rename(temporary, path.join(localStorageRoot, `${slug}.json`));
+      return { data: stored, revision: createHash("sha256").update(raw).digest("hex") };
+    } finally { await rm(temporary, { force: true }); await rm(lock, { recursive: true }); }
+  }
   try {
     const result = await put(`shortcuts/content/${slug}.json`, JSON.stringify(stored), {
       access: "public", contentType: "application/json", addRandomSuffix: false,
@@ -55,7 +95,7 @@ export async function saveShortcuts(slug: string, input: unknown, revision: stri
     });
     return { data: stored, revision: result.etag };
   } catch (error) {
-    if (error instanceof BlobPreconditionFailedError) throw new Error("다른 탭에서 내용이 변경되었습니다. 현재 내용을 백업한 뒤 새로고침해 주세요.");
+    if (error instanceof BlobPreconditionFailedError) throw new ShortcutConflictError("다른 탭에서 공개 내용이 변경되었습니다. 내 초안은 유지됩니다. 최신 공개 내용을 확인해 주세요.");
     throw error;
   }
 }

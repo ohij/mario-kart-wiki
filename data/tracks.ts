@@ -17,14 +17,17 @@ export type TrackSection = {
 };
 
 export type Shortcut = {
+  id?: string;
   name: string;
-  difficulty: Difficulty;
+  difficulty: Difficulty | null;
   description: string;
 };
 
 export type Track = {
   slug: string;
   name: string;
+  nameKo?: string;
+  aliases?: string[];
   game: string;
   type: TrackType;
   difficulty: Difficulty | null;

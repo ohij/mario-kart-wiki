@@ -1,53 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
-import { tracks } from "@/data/tracks";
+import { tracks as trackCatalog } from "@/data/tracks";
+import { loadPublishedTracks } from "@/lib/shortcut-server";
+import { shortcutAnchor } from "@/lib/shortcut-content";
+import { mechanics, basicStrategies as strategies } from "@/data/knowledge";
 
-const featuredTracks = ["mario-circuit", "peach-stadium", "whistlestop-summit", "dandelion-depths"]
-  .flatMap((slug) => tracks.filter((track) => track.slug === slug));
-
-const shortcuts = tracks.flatMap((track) =>
-  track.shortcuts.map((shortcut) => ({
-    ...shortcut,
-    track: track.name,
-    trackSlug: track.slug,
-  }))
-);
-
-const mechanics = [
-  {
-    icon: "💨",
-    name: "Drifting",
-    description: "Learn how to control your kart through corners.",
-  },
-  {
-    icon: "⚡",
-    name: "Mini-Turbo",
-    description: "Build and release boost while drifting.",
-  },
-  {
-    icon: "🪽",
-    name: "Jump Action",
-    description: "Use jumps and terrain to gain speed.",
-  },
-];
-
-const strategies = [
-  {
-    icon: "🏁",
-    name: "Racing Line",
-    description: "Find the fastest line through each section.",
-  },
-  {
-    icon: "🛡️",
-    name: "Item Defense",
-    description: "Learn when and how to protect your position.",
-  },
-  {
-    icon: "⚔️",
-    name: "Overtaking",
-    description: "Create opportunities to pass opponents.",
-  },
-];
+export const dynamic = "force-dynamic";
 
 function Difficulty({ level }: { level: number | null }) {
   if (level === null) return <span className="difficulty unrated">Not rated</span>;
@@ -59,7 +17,13 @@ function Difficulty({ level }: { level: number | null }) {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const tracks = await loadPublishedTracks(trackCatalog);
+  const featuredTracks = ["mario-circuit", "peach-stadium", "whistlestop-summit", "dandelion-depths"]
+    .flatMap((slug) => tracks.filter((track) => track.slug === slug));
+  const shortcuts = tracks.flatMap((track) => track.shortcuts.map((shortcut) => ({
+    ...shortcut, track: track.name, trackSlug: track.slug,
+  })));
   return (
     <main className="site">
 
@@ -74,9 +38,10 @@ export default function Home() {
 
           <nav className="nav-links">
             <a href="#tracks">Tracks</a>
-            <a href="#shortcuts">Shortcuts</a>
-            <a href="#mechanics">Mechanics</a>
-            <a href="#strategies">Strategies</a>
+            <Link href="/shortcuts">Shortcuts</Link>
+            <Link href="/mechanics">Mechanics</Link>
+            <Link href="/strategies">Strategies</Link>
+            <Link href="/controller">Controller</Link>
           </nav>
 
           <Link href="/tracks#track-search" className="search-button">
@@ -129,13 +94,13 @@ export default function Home() {
             </div>
 
             <div>
-              <strong>3</strong>
+              <strong>{mechanics.length}</strong>
               <span>Mechanics</span>
             </div>
 
             <div>
-              <strong>3</strong>
-              <span>Strategies</span>
+              <strong>{strategies.length}</strong>
+              <span>Basic strategies</span>
             </div>
           </div>
 
@@ -216,7 +181,7 @@ export default function Home() {
             </p>
           </div>
 
-          <Link href="/tracks?view=shortcuts" className="view-all">
+          <Link href="/shortcuts" className="view-all">
             View all →
           </Link>
         </div>
@@ -226,9 +191,9 @@ export default function Home() {
 
           {shortcuts.slice(0, 3).map((shortcut) => (
             <Link
-              href={`/tracks/${shortcut.trackSlug}/shortcuts`}
+              href={`/tracks/${shortcut.trackSlug}/shortcuts#${encodeURIComponent(shortcutAnchor(shortcut.id!))}`}
               className="shortcut-card"
-              key={`${shortcut.trackSlug}-${shortcut.name}`}
+              key={`${shortcut.trackSlug}-${shortcut.id}`}
               aria-label={`Learn shortcut: ${shortcut.name}`}
             >
 
@@ -274,7 +239,7 @@ export default function Home() {
             </p>
           </div>
 
-          <Link href="/tracks?view=mechanics" className="view-all">
+          <Link href="/mechanics" className="view-all">
             View all →
           </Link>
         </div>
@@ -293,8 +258,8 @@ export default function Home() {
 
               <p>{mechanic.description}</p>
 
-              <Link href={`/tracks?view=mechanics&q=${encodeURIComponent(mechanic.name)}`}>
-                Find related tracks →
+              <Link href={`/mechanics/${mechanic.slug}`}>
+                View mechanic →
               </Link>
 
             </article>
@@ -317,7 +282,7 @@ export default function Home() {
             </p>
           </div>
 
-          <Link href="/tracks?view=strategies" className="view-all">
+          <Link href="/strategies" className="view-all">
             View all →
           </Link>
         </div>
@@ -336,14 +301,16 @@ export default function Home() {
 
               <p>{strategy.description}</p>
 
-              <Link href="/tracks?view=strategies">
-                Browse track strategies →
+              <Link href={`/strategies/basic/${strategy.slug}`}>
+                View basic strategy →
               </Link>
 
             </article>
           ))}
 
         </div>
+
+        <Link href="/strategies/tracks" className="shortcut-page-link">트랙별 전략 찾아보기 →</Link>
 
       </section>
 
@@ -386,9 +353,10 @@ export default function Home() {
 
           <div className="footer-links">
             <a href="#tracks">Tracks</a>
-            <a href="#shortcuts">Shortcuts</a>
-            <a href="#mechanics">Mechanics</a>
-            <a href="#strategies">Strategies</a>
+            <Link href="/shortcuts">Shortcuts</Link>
+            <Link href="/mechanics">Mechanics</Link>
+            <Link href="/strategies">Strategies</Link>
+            <Link href="/controller">Controller</Link>
           </div>
 
         </div>

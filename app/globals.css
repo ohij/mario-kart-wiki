@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+.content-dashboard > p { margin: 16px 0; line-height: 1.7; }
+.content-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 24px 0; }
+.content-summary p { padding: 18px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); }
+.content-summary strong { display: block; font-size: 28px; color: var(--primary); }
+.content-filters { display: flex; flex-wrap: wrap; gap: 18px; margin: 20px 0; }
+.content-filters label { display: grid; gap: 8px; flex: 1 1 240px; }
+.content-table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--card); }
+.content-table-scroll:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+.content-table { border-collapse: collapse; width: 100%; min-width: 1050px; text-align: left; font-size: 14px; }
+.content-table caption { text-align: left; padding: 16px; font-weight: 700; }
+.content-table th, .content-table td { padding: 16px; border-top: 1px solid var(--border); vertical-align: top; }
+.content-table thead { background: var(--background); }
+.content-table small { display: block; color: var(--muted); }
+.content-table .shortcut-page-link { margin: 0 0 10px; display: block; white-space: nowrap; }
+.content-table button { white-space: nowrap; }
+
 /* Track shortcut authoring keeps the existing card, color and spacing system. */
 .shortcut-page-link { display: inline-block; margin-top: 16px; color: var(--primary); font-weight: 700; }
 .shortcut-workspace { min-width: 0; }
@@ -15,9 +31,9 @@
 .shortcut-template h2 { font-size: 23px; margin: 0; overflow-wrap: anywhere; }
 .shortcut-template h3 { margin: 30px 0 16px; }
 .shortcut-template label, .shortcut-login label { display: flex; flex-direction: column; gap: 9px; margin: 16px 0; font-weight: 700; }
-.shortcut-workspace input, .shortcut-workspace textarea { width: 100%; min-width: 0; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font: inherit; background: var(--background); color: var(--foreground); }
+.shortcut-workspace input, .shortcut-workspace textarea, .shortcut-workspace select { width: 100%; min-width: 0; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font: inherit; background: var(--background); color: var(--foreground); }
 .shortcut-workspace textarea { resize: vertical; line-height: 1.7; }
-.shortcut-workspace input:focus, .shortcut-workspace textarea:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
+.shortcut-workspace input:focus, .shortcut-workspace textarea:focus, .shortcut-workspace select:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
 .shortcut-step { margin: 18px 0; padding: 22px; border: 1px solid var(--border); border-radius: 12px; }
 .shortcut-step h4 { margin: 0 0 14px; color: var(--primary); }
 .shortcut-step figure { margin: 20px 0; }
@@ -70,6 +86,35 @@ button,
 input {
   font: inherit;
 }
+
+/* =========================
+   CONTROLLER VIEWER
+========================= */
+
+.controller-viewer { min-height: 100vh; padding: 54px 24px; background: radial-gradient(circle at 50% 0%, #353941, #17191d 56%); color: #fff; }
+.controller-header, .controller-shell, .controller-connect-help, .controller-footer { max-width: 900px; margin-left: auto; margin-right: auto; }
+.controller-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; margin-bottom: 30px; }
+.controller-header h1 { margin: 8px 0 12px; font-size: clamp(34px, 5vw, 56px); letter-spacing: -2px; }
+.controller-header p { margin: 0; color: #b9bdc4; line-height: 1.6; }
+.controller-layout-toggle { flex-shrink: 0; padding: 10px 14px; border: 1px solid #525760; border-radius: 8px; background: #24272d; color: #fff; font-size: 12px; font-weight: 800; cursor: pointer; }
+.controller-layout-toggle:hover { border-color: var(--primary); }
+.controller-connect-help { padding: 18px 20px; margin-bottom: 22px; border: 1px solid #4b5059; border-radius: 12px; background: rgba(0, 0, 0, .2); }
+.controller-connect-help p { margin: 8px 0 0; color: #b9bdc4; font-size: 13px; line-height: 1.6; }
+.controller-shell { position: relative; padding: 26px 30px 34px; border: 1px solid #4c5159; border-radius: 44% 44% 28% 28% / 36% 36% 24% 24%; background: linear-gradient(145deg, #3b4048, #202329 65%); box-shadow: 0 24px 60px rgba(0, 0, 0, .35); }
+.controller-status { display: flex; align-items: center; justify-content: center; gap: 8px; color: #aeb2b9; font-size: 10px; font-weight: 900; letter-spacing: 1.4px; }
+.controller-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #777c84; }.controller-status-dot.online { background: #62d867; box-shadow: 0 0 10px #62d867; }
+.controller-shoulders { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; margin: 22px 10% 30px; }
+.controller-button { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; border: 1px solid #69707b; border-radius: 50%; background: #15171a; color: #f5f6f7; font-size: 14px; font-weight: 900; box-shadow: inset 0 2px 0 rgba(255,255,255,.1), 0 3px 0 #0a0b0d; transition: transform .05s, background .05s, box-shadow .05s; }
+.controller-button.is-active { transform: translateY(3px); background: var(--primary); border-color: #ff6c68; box-shadow: 0 0 18px rgba(229,37,33,.7); }
+.controller-shoulders .controller-button { width: 100%; height: 30px; border-radius: 8px; font-size: 12px; }
+.controller-body { display: grid; grid-template-columns: 1fr .72fr 1fr; align-items: center; gap: 22px; }
+.controller-left-controls, .controller-right-controls { display: flex; align-items: center; justify-content: space-around; gap: 20px; }.controller-right-controls { flex-direction: row-reverse; }
+.controller-dpad, .controller-face-buttons { position: relative; width: 110px; height: 110px; flex: 0 0 auto; }.controller-dpad .controller-button { position: absolute; border-radius: 9px; }.dpad-up, .face-top { left: 34px; top: 0; }.dpad-left, .face-left { left: 0; top: 34px; }.dpad-right, .face-right { right: 0; top: 34px; }.dpad-down, .face-bottom { left: 34px; bottom: 0; }
+.controller-stick { position: relative; display: flex; align-items: center; justify-content: center; width: 94px; height: 94px; flex: 0 0 auto; border: 7px solid #111316; border-radius: 50%; background: #090a0c; box-shadow: inset 0 0 0 1px #545a63; }.controller-stick > span { width: 45px; height: 45px; border-radius: 50%; background: #363b43; border: 2px solid #77808d; transition: transform .04s; }.controller-stick.is-active > span { background: var(--primary); box-shadow: 0 0 18px rgba(229,37,33,.75); }.controller-stick small { position: absolute; bottom: 7px; font-size: 9px; font-weight: 900; color: #aeb2b9; }
+.controller-center-controls { display: grid; grid-template-columns: 1fr 1fr; place-items: center; gap: 14px 12px; }.controller-center-controls .controller-button { width: 31px; height: 31px; font-size: 13px; }.controller-live-label { grid-column: 1 / -1; color: #9ca3ad; font-size: 10px; font-weight: 900; letter-spacing: 1.4px; }.controller-capture { font-size: 11px !important; }
+.controller-footer { display: flex; justify-content: space-between; gap: 16px; margin-top: 18px; color: #b1b5bc; font-size: 12px; }.controller-footer span:last-child { text-align: right; }
+.controller-overlay { min-height: 0; padding: 0; background: transparent; }.controller-overlay .controller-shell { width: min(900px, 100vw); margin: 0 auto; }
+@media (max-width: 650px) { .controller-viewer { padding: 30px 16px; }.controller-header { align-items: flex-start; flex-direction: column; }.controller-shell { padding: 18px 12px 24px; border-radius: 30px; }.controller-shoulders { margin: 18px 5% 24px; gap: 8px; }.controller-body { grid-template-columns: 1fr 1fr; gap: 15px; }.controller-center-controls { grid-column: 1 / -1; grid-row: 2; grid-template-columns: repeat(4, auto); }.controller-center-controls .controller-live-label { grid-column: auto; order: -1; }.controller-left-controls, .controller-right-controls { gap: 8px; flex-direction: column; }.controller-right-controls { flex-direction: column; }.controller-footer { flex-direction: column; }.controller-footer span:last-child { text-align: left; } }
 
 
 /* =========================
@@ -1009,7 +1054,16 @@ input {
 .track-filters {
   display: flex;
   gap: 7px;
+  flex-wrap: wrap;
 }
+
+.track-extra-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 14px; margin-bottom: 14px; }
+.track-extra-filters label { display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--muted); }
+.track-extra-filters select { min-width: 0; width: 100%; padding: 9px 13px; border: 1px solid var(--border); border-radius: 7px; background: var(--card); color: var(--dark); }
+.track-extra-filters select:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
+.track-filter-note { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 18px; overflow-wrap: anywhere; }
+.track-guide-status { display: inline-block; font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+.guide-navigation { margin-bottom: 28px; }
 
 .track-filters button {
   border: 1px solid var(--border);

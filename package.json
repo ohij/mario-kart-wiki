@@ -6,10 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --test tests/shortcut-content.test.mjs tests/track-search.test.mjs tests/site-metadata.test.mjs tests/shortcut-server.test.mjs tests/shortcut-maintenance.test.mjs",
+    "test:integration": "node --test tests/published-pages.test.mjs",
+    "typecheck": "next typegen && tsc --noEmit",
+    "verify": "npm run lint && npm run typecheck && npm test && npm run build && npm run test:integration",
+    "shortcuts:maintenance": "node scripts/shortcut-maintenance.mjs"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",
+    "jose": "^6.2.12",
     "next": "16.3.5",
     "react": "19.2.8",
     "react-dom": "19.2.8"

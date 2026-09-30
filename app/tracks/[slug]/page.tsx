@@ -4,6 +4,12 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { tracks, updateSource } from "@/data/tracks";
+import { loadPublishedTrack } from "@/lib/shortcut-server";
+import { shortcutAnchor } from "@/lib/shortcut-content";
+import { findMechanic } from "@/data/knowledge";
+import { trackMetadata } from "@/lib/site-metadata";
+
+export const dynamic = "force-dynamic";
 
 function Difficulty({ level }: { level: number | null }) {
   if (level === null) return <span className="difficulty unrated">Not rated</span>;
@@ -24,7 +30,8 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const track = tracks.find((track) => track.slug === slug);
-  return track ? { title: `${track.name} | Mario Kart World Wiki`, description: track.summary } : { title: "Track not found" };
+  if (!track) notFound();
+  return trackMetadata(track);
 }
 
 export default async function TrackPage({
@@ -34,11 +41,12 @@ export default async function TrackPage({
 }) {
   const { slug } = await params;
 
-  const track = tracks.find((track) => track.slug === slug);
+  const catalogTrack = tracks.find((track) => track.slug === slug);
 
-  if (!track) {
+  if (!catalogTrack) {
     notFound();
   }
+  const track = await loadPublishedTrack(catalogTrack);
   const parent = tracks.find((entry) => entry.slug === track.parentSlug);
   const subCourses = tracks.filter((entry) => entry.parentSlug === track.slug);
 
@@ -232,7 +240,7 @@ export default async function TrackPage({
 
               <article
                 className="detail-shortcut-card"
-                key={shortcut.name}
+                key={shortcut.id}
               >
 
                 <div className="shortcut-icon">
@@ -253,9 +261,9 @@ export default async function TrackPage({
 
                   <p>{shortcut.description}</p>
 
-                  <a href="#strategies">
-                    View track strategies →
-                  </a>
+                  <Link href={`/tracks/${track.slug}/shortcuts#${encodeURIComponent(shortcutAnchor(shortcut.id!))}`}>
+                    숏컷 영상·방법 보기 →
+                  </Link>
 
                 </div>
 
@@ -278,7 +286,9 @@ export default async function TrackPage({
               RACE BETTER
             </span>
 
-            <h2>🧠 Strategies</h2>
+            <h2>🧠 트랙별 전략</h2>
+            <Link className="shortcut-page-link" href={`/tracks/${track.slug}/strategies`}>이 트랙의 전략 페이지 →</Link>
+            <Link className="shortcut-page-link" href="/strategies/basic">기본 전략 보기 →</Link>
 
           </div>
 
@@ -328,7 +338,7 @@ export default async function TrackPage({
 
             {track.mechanics.map((mechanic) => (
 
-              <Link href={`/tracks?view=mechanics&q=${encodeURIComponent(mechanic)}`} key={mechanic} title={`Find tracks using ${mechanic}`}>
+              <Link href={findMechanic(mechanic) ? `/mechanics/${findMechanic(mechanic)!.slug}` : "/mechanics"} key={mechanic} title={`Read ${mechanic}`}>
                 ⚙️ {mechanic}
               </Link>
 

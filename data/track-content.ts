@@ -3,6 +3,10 @@ import type { TrackType } from "./tracks";
 // Original summaries based on the course articles linked in track-catalog.json.
 // SNES availability is checked against Nintendo's Ver. 1.8.0 release notes.
 export type TrackContent = {
+  nameKo?: string;
+  aliases?: string[];
+  strategies?: string[];
+  mechanics?: string[];
   type: TrackType;
   cups: string[];
   summary: string;
