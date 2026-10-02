@@ -4,6 +4,7 @@ import { tracks as trackCatalog } from "@/data/tracks";
 import { loadPublishedTracks } from "@/lib/shortcut-server";
 import { shortcutAnchor } from "@/lib/shortcut-content";
 import { mechanics, basicStrategies as strategies } from "@/data/knowledge";
+import { publishedTopic } from "@/lib/guide-content";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,10 @@ function Difficulty({ level }: { level: number | null }) {
 
 export default async function Home() {
   const tracks = await loadPublishedTracks(trackCatalog);
+  const [publishedMechanics, publishedStrategies] = await Promise.all([
+    Promise.all(mechanics.map((topic) => publishedTopic("mechanics", topic))),
+    Promise.all(strategies.map((topic) => publishedTopic("basic", topic))),
+  ]);
   const featuredTracks = ["mario-circuit", "peach-stadium", "whistlestop-summit", "dandelion-depths"]
     .flatMap((slug) => tracks.filter((track) => track.slug === slug));
   const shortcuts = tracks.flatMap((track) => track.shortcuts.map((shortcut) => ({
@@ -247,7 +252,7 @@ export default async function Home() {
 
         <div className="info-grid">
 
-          {mechanics.map((mechanic) => (
+          {publishedMechanics.map((mechanic) => (
             <article className="info-card" key={mechanic.name}>
 
               <div className="info-icon">
@@ -290,7 +295,7 @@ export default async function Home() {
 
         <div className="info-grid">
 
-          {strategies.map((strategy) => (
+          {publishedStrategies.map((strategy) => (
             <article className="info-card strategy-card" key={strategy.name}>
 
               <div className="info-icon">

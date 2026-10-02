@@ -54,7 +54,7 @@ export function isAdmin(request: NextRequest) {
   return data?.v === 2 && data.sub === process.env.GOOGLE_ADMIN_SUB;
 }
 export function safeReturnTo(value: unknown) {
-  return typeof value === "string" && (value === "/admin/content" || /^\/tracks\/[a-z0-9-]+\/shortcuts$/.test(value)) ? value : "/admin/content";
+  return typeof value === "string" && (value === "/admin/content" || /^\/tracks\/[a-z0-9-]+\/(shortcuts|strategies)$/.test(value) || /^\/mechanics\/[a-z0-9-]+$/.test(value) || /^\/strategies\/basic\/[a-z0-9-]+$/.test(value)) ? value : "/admin/content";
 }
 export type GoogleFlow = { state: string; nonce: string; verifier: string; returnTo: string; redirect: string };
 export function beginGoogleLogin(returnTo: unknown) {

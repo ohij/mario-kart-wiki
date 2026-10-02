@@ -8,6 +8,7 @@ import { loadPublishedTrack } from "@/lib/shortcut-server";
 import { shortcutAnchor } from "@/lib/shortcut-content";
 import { findMechanic } from "@/data/knowledge";
 import { trackMetadata } from "@/lib/site-metadata";
+import { loadGuide } from "@/lib/guide-content";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +47,8 @@ export default async function TrackPage({
   if (!catalogTrack) {
     notFound();
   }
-  const track = await loadPublishedTrack(catalogTrack);
+  const [published, guide] = await Promise.all([loadPublishedTrack(catalogTrack), loadGuide("tracks", slug)]);
+  const track = { ...published, strategies: (guide.content as { strategies: string[] }).strategies };
   const parent = tracks.find((entry) => entry.slug === track.parentSlug);
   const subCourses = tracks.filter((entry) => entry.parentSlug === track.slug);
 

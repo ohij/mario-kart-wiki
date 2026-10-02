@@ -160,6 +160,27 @@ test("published saves, permissions, media and backup recovery agree across produ
     assert.match(login.headers.get("set-cookie"), /HttpOnly/i);
     assert.match(sessionHeader, /SameSite=strict/i);
     assert.equal((await (await fetch(`${base}/api/shortcut-admin`, { headers: { Cookie: cookie } })).json()).authenticated, true);
+    for (const [kind, slug, route, content, text] of [
+      ["mechanics", "drifting", "/mechanics/drifting", { description: "Saved drifting summary", sections: [{ title: "Corner entry", text: "Saved drifting explanation" }] }, "Saved drifting explanation"],
+      ["basic", "racing-line", "/strategies/basic/racing-line", { description: "Saved strategy summary", sections: [{ title: "Line choice", text: "Saved basic strategy" }] }, "Saved basic strategy"],
+      ["tracks", "mario-bros-circuit", "/tracks/mario-bros-circuit/strategies", { strategies: ["Saved track strategy"] }, "Saved track strategy"],
+    ]) {
+      const url = `${base}/api/guides/${kind}/${slug}`;
+      const before = await (await fetch(url)).json();
+      assert.equal(before.revision, "empty");
+      const saveGuide = (body, revision = before.revision, session = cookie, origin = base) => fetch(url, { method: "PUT", headers: { Origin: origin, ...(session ? { Cookie: session } : {}), "Content-Type": "application/json", "If-Match": revision }, body: JSON.stringify(body) });
+      assert.equal((await saveGuide(content, before.revision, "")).status, 401);
+      assert.equal((await saveGuide(content, before.revision, cookie, "https://evil.test")).status, 401);
+      const savedResponse = await saveGuide(content);
+      assert.equal(savedResponse.status, 200, await savedResponse.clone().text());
+      const saved = await savedResponse.json();
+      assert.deepEqual((await (await fetch(url)).json()).content, content);
+      assert.equal((await saveGuide(content)).status, 409);
+      assert.match(await html(route), new RegExp(text));
+      if (kind === "tracks") assert.match(await html("/tracks/mario-bros-circuit"), /Saved track strategy/);
+      else assert.match(await html(kind === "mechanics" ? "/mechanics" : "/strategies/basic"), new RegExp(content.description));
+      assert.ok(saved.revision && saved.revision !== "empty");
+    }
     const rawExpired = Buffer.from(JSON.stringify({ v: 2, sub: adminSub, exp: Date.now() - 1000, client: clientId })).toString("base64url");
     const expiredCookie = `mkw-admin=${rawExpired}.${createHmac("sha256", secret).update(`google-admin-v2:${rawExpired}`).digest("hex")}`;
     assert.equal((await (await fetch(`${base}/api/shortcut-admin`, { headers: { Cookie: expiredCookie } })).json()).authenticated, false);

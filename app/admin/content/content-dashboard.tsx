@@ -101,6 +101,7 @@ export default function ContentDashboard() {
           await fetch("/api/shortcut-admin", { method: "DELETE" }).then(responseJson); setAdmin(false); setRows(null);
         })}>관리자 로그아웃</button>
       </div>
+      <p>다른 가이드 편집: <Link href="/mechanics">메카닉</Link> · <Link href="/strategies/basic">기본 전략</Link> · <Link href="/strategies/tracks">트랙별 전략</Link>. 각 항목 페이지에서 관리자 로그인 후 내용을 편집할 수 있습니다.</p>
       <p>공개 저장 데이터 기준입니다. 브라우저 초안은 포함하지 않습니다. 기존 가이드는 공개 개수에 포함하지만 저장 완료로 계산하지 않습니다.</p>
       <p>영상·이미지는 공개 필수 조건이 아니며, 빠진 항목은 보완 대상으로 표시합니다. 수정일은 한국 시간이며 과거 저장본은 기록이 없을 수 있습니다.</p>
       {!storage && <p className="shortcut-error">저장소가 연결되지 않았습니다. 로컬 저장 또는 Vercel Blob을 설정해야 조사 상태와 내용을 저장할 수 있습니다.</p>}
