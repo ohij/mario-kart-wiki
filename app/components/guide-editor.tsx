@@ -95,7 +95,8 @@ export default function GuideEditor({ kind, slug, initial }: { kind: GuideKind; 
     setDirty(true);
   }
   function mediaFields(item: Media, title: string, update: (patch: Media) => void) {
-    return <>
+    return <div className="guide-editor-media">
+      <h4>참고 이미지·영상 <small>선택</small></h4>
       <label>이미지 파일 (PNG / JPEG / WebP / GIF, 최대 10MB)<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" disabled={busy} onChange={(event) => {
         const file = event.target.files?.[0]; event.target.value = "";
         if (file) void uploadMedia(file, "image").then((url) => { if (url) update({ image: url }); });
@@ -110,7 +111,7 @@ export default function GuideEditor({ kind, slug, initial }: { kind: GuideKind; 
       <label>또는 영상 URL<input type="url" value={item.video ?? ""} placeholder="YouTube 링크 또는 HTTPS 영상 주소" onChange={(event) => update({ video: event.target.value })} /></label>
       {item.video && !safeMedia(item.video, "video") && <p role="alert" className="shortcut-error">HTTPS 영상 주소를 입력해 주세요.</p>}
       <GuideMedia media={{ image: safeMedia(item.image ?? "", "image") ? item.image : "", caption: item.caption, video: safeMedia(item.video ?? "", "video") ? item.video : "" }} title={title} />
-    </>;
+    </div>;
   }
   return <div className="shortcut-workspace guide-editor">
     <div className="shortcut-toolbar">
@@ -122,27 +123,32 @@ export default function GuideEditor({ kind, slug, initial }: { kind: GuideKind; 
     {loginOpen && !admin && <GoogleAdminLogin configured={configured} />}
     {error && <p role="alert" className="shortcut-error">{error}</p>}
     {message && <p role="status">{message}</p>}
-    {admin && editing && <div className="shortcut-template">
-      <h2>{isTrack ? "트랙별 전략 편집" : "설명 편집"}</h2>
+    {admin && editing && <div className="shortcut-template guide-editor-form">
+      <div className="guide-editor-intro"><span className="section-label">GUIDE EDITOR</span><h2>{isTrack ? "트랙별 전략 편집" : "설명 편집"}</h2>
+        <p>{isTrack ? "전략마다 내용을 구분해 작성하고 필요한 이미지·영상을 덧붙이세요." : "먼저 목록에 보일 요약을 작성한 뒤, 설명을 번호별로 나누어 작성하세요."}</p></div>
       {!storage && <p role="alert" className="shortcut-error">저장소가 연결되지 않았습니다.</p>}
       {!revision && <p role="alert" className="shortcut-error">최신 내용을 불러오는 중입니다. 저장은 잠시 후 가능합니다.</p>}
       {!isTrack && "sections" in content && <>
-        <label>목록 요약<textarea rows={3} value={content.description} onChange={(event) => change({ ...content, description: event.target.value })} /></label>
-        {sections.map((section, index) => <div className="shortcut-step" key={index}>
-          <label>설명 {index + 1} 제목<input value={section.title} maxLength={200} onChange={(event) => change({ ...content, sections: sections.map((item, i) => i === index ? { ...item, title: event.target.value } : item) })} /></label>
-          <label>본문<textarea rows={6} value={section.text} onChange={(event) => change({ ...content, sections: sections.map((item, i) => i === index ? { ...item, text: event.target.value } : item) })} /></label>
+        <div className="guide-summary-field"><label>목록에 보일 짧은 소개<textarea rows={3} value={content.description} placeholder="이 메카닉이나 전략이 무엇인지 한두 문장으로 소개해 주세요." onChange={(event) => change({ ...content, description: event.target.value })} /></label></div>
+        <div className="guide-editor-list-heading"><h3>상세 설명</h3><p>설명 하나가 공개 페이지의 독립된 문단으로 표시됩니다.</p></div>
+        {sections.map((section, index) => <section className="guide-editor-card" key={index} aria-label={`설명 ${index + 1}`}>
+          <header className="guide-editor-card-heading"><span className="guide-number">{String(index + 1).padStart(2, "0")}</span><div><span>설명 {index + 1}</span><h3>{section.title.trim() || "새 설명"}</h3></div></header>
+          <div className="guide-editor-card-body"><label>설명 제목<input value={section.title} maxLength={200} placeholder="예: 드리프트 시작 타이밍" onChange={(event) => change({ ...content, sections: sections.map((item, i) => i === index ? { ...item, title: event.target.value } : item) })} /></label>
+          <label>설명 내용<textarea rows={6} value={section.text} placeholder="방법과 주의할 점을 순서대로 적어 주세요." onChange={(event) => change({ ...content, sections: sections.map((item, i) => i === index ? { ...item, text: event.target.value } : item) })} /></label>
           {mediaFields(section, section.title || `설명 ${index + 1}`, (patch) => updateSectionMedia(index, patch))}
-          <button type="button" onClick={() => change({ ...content, sections: sections.filter((_, i) => i !== index) })}>이 설명 삭제</button>
-        </div>)}
-        <button type="button" onClick={() => change({ ...content, sections: [...sections, { title: "", text: "" }] })}>설명 추가</button>
+          <button type="button" onClick={() => change({ ...content, sections: sections.filter((_, i) => i !== index) })}>설명 {index + 1} 삭제</button></div>
+        </section>)}
+        <button type="button" onClick={() => change({ ...content, sections: [...sections, { title: "", text: "" }] })}>+ 설명 추가</button>
       </>}
       {isTrack && "strategies" in content && <>
-        {strategies.map((strategy, index) => <div className="shortcut-step" key={index}>
-          <label>전략 {index + 1}<textarea rows={4} value={strategy} onChange={(event) => change({ ...content, strategies: strategies.map((item, i) => i === index ? event.target.value : item) })} /></label>
+        <div className="guide-editor-list-heading"><h3>전략 목록</h3><p>전략을 하나씩 나누면 공개 페이지에 번호 순서대로 표시됩니다.</p></div>
+        {strategies.map((strategy, index) => <section className="guide-editor-card" key={index} aria-label={`전략 ${index + 1}`}>
+          <header className="guide-editor-card-heading"><span className="guide-number">{String(index + 1).padStart(2, "0")}</span><div><span>전략 {index + 1}</span><h3>{strategy.trim().slice(0, 45) || "새 전략"}</h3></div></header>
+          <div className="guide-editor-card-body"><label>전략 내용<textarea rows={4} value={strategy} placeholder="언제, 어떤 방법을 사용할지 적어 주세요." onChange={(event) => change({ ...content, strategies: strategies.map((item, i) => i === index ? event.target.value : item) })} /></label>
           {mediaFields(media[index] ?? {}, `전략 ${index + 1}`, (patch) => updateStrategyMedia(index, patch))}
-          <button type="button" onClick={() => change({ strategies: strategies.filter((_, i) => i !== index), media: media.filter((_, i) => i !== index) })}>이 전략 삭제</button>
-        </div>)}
-        <button type="button" onClick={() => change({ strategies: [...strategies, ""], media: [...media, {}] })}>전략 추가</button>
+          <button type="button" onClick={() => change({ strategies: strategies.filter((_, i) => i !== index), media: media.filter((_, i) => i !== index) })}>전략 {index + 1} 삭제</button></div>
+        </section>)}
+        <button type="button" onClick={() => change({ strategies: [...strategies, ""], media: [...media, {}] })}>+ 전략 추가</button>
       </>}
       <div className="shortcut-toolbar"><button className="shortcut-primary" type="button" disabled={busy || !storage || !revision || !dirty} onClick={() => void save()}>{busy ? "저장 중…" : "저장·공개"}</button></div>
     </div>}

@@ -28,7 +28,10 @@ export default async function MechanicPage({ params }: { params: Promise<{ slug:
     <GuideEditor kind="mechanics" slug={slug} initial={{ description: topic.description, sections: topic.sections }} />
     <section className="detail-section"><h2>메카닉 설명</h2>
       {!topic.sections.length && <p className="guide-pending">아직 상세 설명이 작성되지 않았습니다.</p>}
-      {topic.sections.map((section, index) => <article key={index}><h3>{section.title}</h3><p className="shortcut-prose">{section.text}</p><GuideMedia media={section} title={section.title} /></article>)}
+      <div className="guide-article-list">{topic.sections.map((section, index) => <article className="guide-article" key={index}>
+        <header className="guide-article-heading"><span className="guide-number">{String(index + 1).padStart(2, "0")}</span><div><span>설명 {index + 1}</span><h3>{section.title}</h3></div></header>
+        <p className="shortcut-prose">{section.text}</p><GuideMedia media={section} title={section.title} />
+      </article>)}</div>
     </section>
     <section className="detail-section"><h2>관련 트랙</h2><div className="mechanic-tags">
       {related.map((track) => <Link href={`/tracks/${track.slug}`} key={track.slug}>{track.name} →</Link>)}
