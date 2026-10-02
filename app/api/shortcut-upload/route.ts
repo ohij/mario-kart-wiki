@@ -5,12 +5,15 @@ import { mkdir, open, rm } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { tracks } from "@/data/tracks";
+import { guideSource, type GuideKind } from "@/lib/guide-content";
 
 export const runtime = "nodejs";
 export async function PUT(request: NextRequest) {
   if (!sameOrigin(request) || !isAdmin(request)) return NextResponse.json({ error: "관리자 로그인이 필요합니다." }, { status: 401 });
   if (!localStorageEnabled()) return NextResponse.json({ error: "로컬 저장소가 설정되지 않았습니다." }, { status: 400 });
-  if (!tracks.some(track => track.slug === request.nextUrl.searchParams.get("slug"))) return NextResponse.json({ error: "트랙을 찾을 수 없습니다." }, { status: 404 });
+  const slug = request.nextUrl.searchParams.get("slug") ?? "";
+  const kind = request.nextUrl.searchParams.get("kind");
+  if (kind ? !(["mechanics", "basic", "tracks"].includes(kind) && guideSource(kind as GuideKind, slug)) : !tracks.some(track => track.slug === slug)) return NextResponse.json({ error: "항목을 찾을 수 없습니다." }, { status: 404 });
   const mime = request.headers.get("content-type") ?? "";
   if (!/^(image\/(png|jpeg|webp|gif)|video\/(mp4|webm|ogg))$/.test(mime) || !request.body) return NextResponse.json({ error: "지원하지 않는 파일 형식입니다." }, { status: 400 });
   const limit = (mime.startsWith("image/") ? 10 : 100) * 1024 * 1024;
@@ -47,10 +50,12 @@ export async function POST(request: NextRequest) {
       onBeforeGenerateToken: async (pathname) => {
         if (!sameOrigin(request) || !isAdmin(request)) throw new Error("관리자 로그인이 필요합니다.");
         if (!storageConfigured()) throw new Error("Vercel Blob 저장소를 먼저 연결해 주세요.");
-        const match = /^shortcuts\/media\/([a-z0-9-]+)\/([a-f0-9-]+)\.(png|jpeg|webp|gif|mp4|webm|ogg)$/.exec(pathname);
-        if (!match || !tracks.some((track) => track.slug === match[1])) throw new Error("허용하지 않는 업로드 경로입니다.");
-        const image = ["png", "jpeg", "webp", "gif"].includes(match[3]);
-        return { allowedContentTypes: [image ? `image/${match[3]}` : `video/${match[3]}`], maximumSizeInBytes: (image ? 10 : 100) * 1024 * 1024, addRandomSuffix: true, allowOverwrite: false, validUntil: Date.now() + 10 * 60 * 1000 };
+        const shortcut = /^shortcuts\/media\/([a-z0-9-]+)\/([a-f0-9-]+)\.(png|jpeg|webp|gif|mp4|webm|ogg)$/.exec(pathname);
+        const guide = /^guides\/media\/(mechanics|basic|tracks)\/([a-z0-9-]+)\/([a-f0-9-]+)\.(png|jpeg|webp|gif|mp4|webm|ogg)$/.exec(pathname);
+        if (!((shortcut && tracks.some((track) => track.slug === shortcut[1])) || (guide && guideSource(guide[1] as GuideKind, guide[2])))) throw new Error("허용하지 않는 업로드 경로입니다.");
+        const extension = shortcut?.[3] ?? guide![4];
+        const image = ["png", "jpeg", "webp", "gif"].includes(extension);
+        return { allowedContentTypes: [image ? `image/${extension}` : `video/${extension}`], maximumSizeInBytes: (image ? 10 : 100) * 1024 * 1024, addRandomSuffix: true, allowOverwrite: false, validUntil: Date.now() + 10 * 60 * 1000 };
       },
     });
     return NextResponse.json(response);

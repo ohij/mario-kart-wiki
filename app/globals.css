@@ -39,6 +39,9 @@
 .shortcut-step figure { margin: 20px 0; }
 .shortcut-step img { display: block; max-width: 100%; max-height: 720px; height: auto; border-radius: 8px; object-fit: contain; }
 .shortcut-step figcaption { margin-top: 10px; color: var(--muted); white-space: pre-wrap; overflow-wrap: anywhere; }
+.guide-media-image { margin: 18px 0; }
+.guide-media-image img { display: block; max-width: 100%; max-height: 720px; height: auto; border-radius: 8px; object-fit: contain; }
+.guide-media-image figcaption { margin-top: 10px; color: var(--muted); white-space: pre-wrap; overflow-wrap: anywhere; }
 .shortcut-prose { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.85; }
 .shortcut-video { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 12px; background: var(--dark); margin-top: 18px; }
 .shortcut-placeholder { padding: 40px 20px; border: 2px dashed var(--border); border-radius: 12px; color: var(--muted); text-align: center; }
@@ -1650,7 +1653,7 @@ input {
 .strategy-row {
   display: flex;
 
-  align-items: center;
+  align-items: flex-start;
 
   gap: 25px;
 
@@ -1658,6 +1661,8 @@ input {
 
   border-bottom: 1px solid var(--border);
 }
+
+.strategy-row > div { flex: 1; min-width: 0; }
 
 .strategy-row > span {
   color: var(--primary);

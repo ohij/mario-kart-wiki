@@ -1,6 +1,7 @@
 import { tracks } from "./tracks";
 
-export type KnowledgeTopic = { slug: string; icon: string; name: string; description: string; sections: { title: string; text: string }[] };
+export type KnowledgeSection = { title: string; text: string; image?: string; caption?: string; video?: string };
+export type KnowledgeTopic = { slug: string; icon: string; name: string; description: string; sections: KnowledgeSection[] };
 
 const featuredMechanics: KnowledgeTopic[] = [
   {

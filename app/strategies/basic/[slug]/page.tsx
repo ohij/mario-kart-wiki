@@ -5,6 +5,7 @@ import GuidePage from "@/app/components/guide-page";
 import { pageMetadata } from "@/lib/site-metadata";
 import { publishedTopic } from "@/lib/guide-content";
 import GuideEditor from "@/app/components/guide-editor";
+import GuideMedia from "@/app/components/guide-media";
 
 export const dynamic = "force-dynamic";
 export function generateStaticParams() { return basicStrategies.map(({ slug }) => ({ slug })); }
@@ -24,7 +25,7 @@ export default async function BasicStrategyPage({ params }: { params: Promise<{ 
     <GuideEditor kind="basic" slug={slug} initial={{ description: topic.description, sections: topic.sections }} />
     <section className="detail-section"><h2>기본 전략 설명</h2>
       {!topic.sections.length && <p className="guide-pending">아직 상세 설명이 작성되지 않았습니다.</p>}
-      {topic.sections.map((section, index) => <article key={index}><h3>{section.title}</h3><p className="shortcut-prose">{section.text}</p></article>)}
+      {topic.sections.map((section, index) => <article key={index}><h3>{section.title}</h3><p className="shortcut-prose">{section.text}</p><GuideMedia media={section} title={section.title} /></article>)}
     </section>
   </GuidePage>;
 }

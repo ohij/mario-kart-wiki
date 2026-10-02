@@ -204,6 +204,28 @@ test("published saves, permissions, media and backup recovery agree across produ
     const videoResponse = await upload(video, "video/mp4");
     assert.equal(videoResponse.status, 200);
     const videoUrl = (await videoResponse.json()).url;
+    const guideUpload = `${base}/api/shortcut-upload?kind=mechanics&slug=drifting`;
+    assert.equal((await fetch(guideUpload, { method: "PUT", headers: { Origin: base, "Content-Type": "image/png" }, body: image })).status, 401);
+    assert.equal((await fetch(`${base}/api/shortcut-upload?kind=mechanics&slug=unknown`, { method: "PUT", headers: { Origin: base, Cookie: cookie, "Content-Type": "image/png" }, body: image })).status, 404);
+    const guideImageResponse = await fetch(guideUpload, { method: "PUT", headers: { Origin: base, Cookie: cookie, "Content-Type": "image/png" }, body: image });
+    assert.equal(guideImageResponse.status, 200);
+    const guideImageUrl = (await guideImageResponse.json()).url;
+    assert.deepEqual(Buffer.from(await (await fetch(`${base}${guideImageUrl}`)).arrayBuffer()), image);
+    for (const [kind, slug, route, content] of [
+      ["mechanics", "drifting", "/mechanics/drifting", { description: "Saved drifting summary", sections: [{ title: "Corner entry", text: "Saved drifting explanation", image: guideImageUrl, caption: "Corner entry diagram", video: videoUrl }] }],
+      ["basic", "racing-line", "/strategies/basic/racing-line", { description: "Saved strategy summary", sections: [{ title: "Line choice", text: "Saved basic strategy", image: guideImageUrl, caption: "Line choice diagram", video: videoUrl }] }],
+      ["tracks", "mario-bros-circuit", "/tracks/mario-bros-circuit/strategies", { strategies: ["Saved track strategy"], media: [{ image: guideImageUrl, caption: "Track strategy diagram", video: videoUrl }] }],
+    ]) {
+      const url = `${base}/api/guides/${kind}/${slug}`;
+      const previous = await (await fetch(url)).json();
+      const response = await fetch(url, { method: "PUT", headers: { Origin: base, Cookie: cookie, "Content-Type": "application/json", "If-Match": previous.revision }, body: JSON.stringify(content) });
+      assert.equal(response.status, 200, await response.clone().text());
+      assert.deepEqual((await (await fetch(url)).json()).content, content);
+      const rendered = await html(route);
+      assert.match(rendered, new RegExp(content.media?.[0]?.caption ?? content.sections[0].caption));
+      assert.ok(rendered.includes(guideImageUrl));
+      assert.ok(rendered.includes(videoUrl));
+    }
     for (const [range, start, end] of [["bytes=0-3", 0, 3], ["bytes=5-", 5, video.length - 1], ["bytes=-4", video.length - 4, video.length - 1]]) {
       const response = await fetch(`${base}${videoUrl}`, { headers: { Range: range } });
       assert.equal(response.status, 206);

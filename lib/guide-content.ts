@@ -2,12 +2,14 @@ import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { get, put, BlobPreconditionFailedError } from "@vercel/blob";
-import { basicStrategies, mechanics, type KnowledgeTopic } from "@/data/knowledge";
+import { basicStrategies, mechanics, type KnowledgeSection, type KnowledgeTopic } from "@/data/knowledge";
 import { tracks, type Track } from "@/data/tracks";
 import { localStorageEnabled, localStorageRoot, storageConfigured } from "./shortcut-server";
+import { safeMedia, youtubeEmbed } from "./shortcut-drafts";
 
 export type GuideKind = "mechanics" | "basic" | "tracks";
-export type GuideContent = { description: string; sections: { title: string; text: string }[] } | { strategies: string[] };
+export type GuideMedia = { image?: string; caption?: string; video?: string };
+export type GuideContent = { description: string; sections: KnowledgeSection[] } | { strategies: string[]; media?: GuideMedia[] };
 type StoredGuide = { version: 1; kind: GuideKind; slug: string; updatedAt: string; content: GuideContent };
 export class GuideConflictError extends Error {}
 
@@ -26,12 +28,25 @@ export function initialGuide(kind: GuideKind, slug: string): GuideContent {
 function parseGuide(input: unknown, kind: GuideKind): GuideContent {
   if (!input || typeof input !== "object") throw new Error("올바른 설명 데이터가 아닙니다.");
   const value = input as Record<string, unknown>;
+  const parseMedia = (input: unknown): GuideMedia => {
+    if (!input || typeof input !== "object" || Array.isArray(input)) throw new Error("미디어 데이터가 올바르지 않습니다.");
+    const fields = input as Record<string, unknown>;
+    for (const key of ["image", "caption", "video"]) {
+      if (fields[key] !== undefined && (typeof fields[key] !== "string" || fields[key].length > 2048)) throw new Error("미디어 주소와 이미지 설명은 2048자 이하로 작성해 주세요.");
+    }
+    const image = fields.image as string | undefined;
+    const video = fields.video as string | undefined;
+    if (image && !safeMedia(image, "image")) throw new Error("이미지는 HTTPS 주소 또는 업로드한 파일을 사용해 주세요.");
+    if (video && (!safeMedia(video, "video") || (["youtube.com", "m.youtube.com", "youtu.be"].includes((() => { try { return new URL(video).hostname.replace(/^www\./, ""); } catch { return ""; } })()) && !youtubeEmbed(video)))) throw new Error("영상은 올바른 YouTube 링크, HTTPS 주소 또는 업로드한 파일을 사용해 주세요.");
+    return Object.fromEntries(["image", "caption", "video"].filter((key) => fields[key] !== undefined).map((key) => [key, (fields[key] as string).trim()])) as GuideMedia;
+  };
   if (kind === "tracks") {
     if (!Array.isArray(value.strategies) || value.strategies.length > 50 || value.strategies.some((item) => typeof item !== "string" || !item.trim() || item.length > 4000)) throw new Error("전략은 빈 항목 없이 50개 이하, 각 4000자 이하로 작성해 주세요.");
-    return { strategies: value.strategies.map((item: string) => item.trim()) };
+    if (value.media !== undefined && (!Array.isArray(value.media) || value.media.length !== value.strategies.length)) throw new Error("전략 미디어 개수가 전략 개수와 일치하지 않습니다.");
+    return { strategies: value.strategies.map((item: string) => item.trim()), ...(value.media === undefined ? {} : { media: (value.media as unknown[]).map(parseMedia) }) };
   }
   if (typeof value.description !== "string" || value.description.length > 2000 || !Array.isArray(value.sections) || value.sections.length > 30 || value.sections.some((item) => !item || typeof item.title !== "string" || !item.title.trim() || item.title.length > 200 || typeof item.text !== "string" || !item.text.trim() || item.text.length > 10000)) throw new Error("요약은 2000자 이하, 설명은 제목과 본문을 채운 30개 이하 항목으로 작성해 주세요.");
-  return { description: value.description.trim(), sections: value.sections.map((item: { title: string; text: string }) => ({ title: item.title.trim(), text: item.text.trim() })) };
+  return { description: value.description.trim(), sections: value.sections.map((item: KnowledgeSection) => ({ title: item.title.trim(), text: item.text.trim(), ...parseMedia(item) })) };
 }
 const filePath = (kind: GuideKind, slug: string) => path.join(localStorageRoot, "guides", kind, `${slug}.json`);
 const blobPath = (kind: GuideKind, slug: string) => `guides/content/${kind}/${slug}.json`;
