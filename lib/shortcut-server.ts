@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile, rename, rm } from "node:fs/promises";
 import path from "node:path";
-import { get, put, BlobPreconditionFailedError } from "@vercel/blob";
+import { get, head, put, BlobNotFoundError, BlobPreconditionFailedError } from "@vercel/blob";
 import type { NextRequest } from "next/server";
 import { parseBackup, publicationIssues, type ShortcutBackup } from "./shortcut-drafts";
 import type { Track } from "../data/tracks";
@@ -30,7 +30,7 @@ export async function readJsonBody(request: Request, limit: number): Promise<unk
   }
   return JSON.parse(Buffer.concat(chunks).toString("utf8"));
 }
-export async function loadShortcuts(slug: string) {
+export async function loadShortcuts(slug: string, fresh = false) {
   if (localStorageEnabled()) {
     if (!/^[a-z0-9-]+$/.test(slug)) throw new Error("올바르지 않은 트랙입니다.");
     let raw: string;
@@ -39,10 +39,30 @@ export async function loadShortcuts(slug: string) {
     return { data: parseBackup(JSON.parse(raw), slug), revision: createHash("sha256").update(raw).digest("hex") };
   }
   if (!storageConfigured()) return { data: null, revision: "empty" };
-  const result = await get(`shortcuts/content/${slug}.json`, { access: "public", useCache: false });
-  if (!result) return { data: null, revision: "empty" };
+  const pathname = `shortcuts/content/${slug}.json`;
+  let expectedRevision: string | null = null;
+  let source = pathname;
+  if (fresh) {
+    try {
+      const metadata = await head(pathname);
+      expectedRevision = blobRevision(metadata.etag);
+      const url = new URL(metadata.url);
+      url.searchParams.set("revision", expectedRevision);
+      source = url.toString();
+    } catch (error) {
+      if (error instanceof BlobNotFoundError) return { data: null, revision: "empty" };
+      throw error;
+    }
+  }
+  const result = await get(source, { access: "public" });
+  if (!result) {
+    if (expectedRevision) throw new Error("최신 공개 내용을 읽지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    return { data: null, revision: "empty" };
+  }
   if (result.statusCode !== 200) throw new Error("숏컷 데이터를 읽지 못했습니다.");
-  return { data: parseBackup(await new Response(result.stream).json(), slug), revision: blobRevision(result.blob.etag) };
+  const revision = blobRevision(result.blob.etag);
+  if (expectedRevision && revision !== expectedRevision) throw new Error("최신 공개 내용을 읽지 못했습니다. 잠시 후 다시 시도해 주세요.");
+  return { data: parseBackup(await new Response(result.stream).json(), slug), revision };
 }
 export async function loadPublishedTrack(track: Track): Promise<Track> {
   const { data } = await loadShortcuts(track.slug);
@@ -66,7 +86,7 @@ export async function saveShortcuts(slug: string, input: unknown, revision: stri
   const issues = publicationIssues(data.shortcuts);
   if (issues.length) throw new Error(issues.map((issue) => issue.message).join("\n"));
   if (!revision) throw new Error("페이지를 새로고침한 뒤 다시 저장해 주세요.");
-  const previous = await loadShortcuts(slug);
+  const previous = await loadShortcuts(slug, true);
   if (previous.revision !== revision) throw new ShortcutConflictError("다른 탭에서 공개 내용이 변경되었습니다. 내 초안은 유지됩니다. 최신 공개 내용을 확인해 주세요.");
   const stored: ShortcutBackup = { version: 1, track: slug, updatedAt: new Date().toISOString(),
     researchStatus: data.shortcuts.length ? "unreviewed" : data.researchStatus ?? (previous.data?.shortcuts.length === 0 ? previous.data.researchStatus : undefined) ?? "unreviewed",

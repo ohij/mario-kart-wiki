@@ -6,10 +6,10 @@ import { isAdmin, loadShortcuts, readJsonBody, sameOrigin, saveShortcuts, Shortc
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 type Context = { params: Promise<{ slug: string }> };
-export async function GET(_request: NextRequest, { params }: Context) {
+export async function GET(request: NextRequest, { params }: Context) {
   const { slug } = await params;
   if (!tracks.some((track) => track.slug === slug)) return NextResponse.json({ error: "트랙을 찾을 수 없습니다." }, { status: 404 });
-  try { return NextResponse.json(await loadShortcuts(slug), { headers: { "Cache-Control": "no-store" } }); }
+  try { return NextResponse.json(await loadShortcuts(slug, isAdmin(request)), { headers: { "Cache-Control": "no-store" } }); }
   catch { return NextResponse.json({ error: "숏컷 데이터를 읽지 못했습니다." }, { status: 500 }); }
 }
 export async function PUT(request: NextRequest, { params }: Context) {

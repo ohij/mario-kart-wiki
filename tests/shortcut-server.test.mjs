@@ -162,11 +162,17 @@ test("local concurrent saves have one winner and preserve readable data", async 
 
 test("Blob saves round-trip ETags and conditional races become conflicts (mock transport)", async () => {
   class PreconditionError extends Error {}
+  class NotFoundError extends Error {}
   let stored = null;
   let count = 0;
   const options = [];
   const api = await serverModule({ BLOB_READ_WRITE_TOKEN: "test-token", SHORTCUT_STORAGE: "local", VERCEL: "1" }, os.tmpdir(), {
     BlobPreconditionFailedError: PreconditionError,
+    BlobNotFoundError: NotFoundError,
+    head: async () => {
+      if (!stored) throw new NotFoundError();
+      return { url: "https://test.public.blob.vercel-storage.com/shortcuts/content/test-track.json", etag: stored.etag };
+    },
     get: async () => stored && ({ statusCode: 200, stream: new Blob([stored.raw]).stream(), blob: { etag: stored.etag } }),
     put: async (pathname, raw, config) => {
       options.push({ pathname, ...config });
@@ -187,4 +193,42 @@ test("Blob saves round-trip ETags and conditional races become conflicts (mock t
   assert.equal(options.at(-1).ifMatch, first.revision);
   assert.equal(options.at(-1).addRandomSuffix, false);
   await assert.rejects(api.saveShortcuts(content.track, content, first.revision), api.ShortcutConflictError);
+});
+
+test("editor reads the current public Blob after an overwrite while the CDN path is stale", async () => {
+  class NotFoundError extends Error {}
+  class PreconditionError extends Error {}
+  const pathname = `shortcuts/content/${content.track}.json`;
+  const url = `https://test.public.blob.vercel-storage.com/${pathname}`;
+  const old = { raw: JSON.stringify(content), etag: 'W/"old"' };
+  let current = { raw: JSON.stringify({ ...content, shortcuts: [{ ...content.shortcuts[0], title: "Current" }] }), etag: 'W/"current"' };
+  let written = null;
+  const api = await serverModule({ BLOB_READ_WRITE_TOKEN: "test-token", VERCEL: "1" }, os.tmpdir(), {
+    BlobNotFoundError: NotFoundError,
+    BlobPreconditionFailedError: PreconditionError,
+    head: async (requested) => {
+      assert.equal(requested, pathname);
+      return { url, etag: current.etag };
+    },
+    get: async (requested) => {
+      const value = requested === pathname ? old : current;
+      if (requested !== pathname) {
+        assert.equal(new URL(requested).searchParams.get("revision"), current.etag.replace(/^W\//, ""));
+      }
+      return { statusCode: 200, stream: new Blob([value.raw]).stream(), blob: { etag: value.etag } };
+    },
+    put: async (_pathname, raw, options) => {
+      if (options.ifMatch !== current.etag.replace(/^W\//, "")) throw new PreconditionError();
+      written = JSON.parse(raw);
+      current = { raw, etag: 'W/"next"' };
+      return { etag: current.etag };
+    },
+  });
+  assert.equal((await api.loadShortcuts(content.track)).revision, '"old"');
+  const latest = await api.loadShortcuts(content.track, true);
+  assert.equal(latest.revision, '"current"');
+  assert.equal(latest.data.shortcuts[0].title, "Current");
+  await api.saveShortcuts(content.track, content, latest.revision);
+  assert.equal(written.shortcuts[0].title, "Test");
+  await assert.rejects(api.saveShortcuts(content.track, content, latest.revision), api.ShortcutConflictError);
 });
