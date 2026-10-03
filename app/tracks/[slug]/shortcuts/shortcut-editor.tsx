@@ -203,9 +203,10 @@ export default function ShortcutEditor({ slug, initial, initialError = "" }: { s
         <div className="shortcut-toolbar">
           {pendingDraft && <button type="button" disabled={!ready || busy} onClick={() => {
             if (dirty && !window.confirm("작성 중인 내용을 보관된 초안으로 바꿀까요? 먼저 백업을 내보낼 수 있습니다.")) return;
-            setItems(pendingDraft.shortcuts); setRevision(pendingDraft.baseRevision); setDirty(true); setPreview(false); setIssues([]);
-            persistDraft(pendingDraft.shortcuts, pendingDraft.baseRevision); setPendingDraft(null);
-            setMessage("초안을 복구했습니다. 공개 내용은 변경되지 않았습니다.");
+            if (pendingDraft.baseRevision !== revision && !window.confirm("초안 작성 이후 공개 내용이 변경되었습니다. 최신 공개 버전을 기준으로 이 초안을 계속 편집할까요? 실제 공개는 저장·공개 버튼을 눌러야 합니다.")) return;
+            setItems(pendingDraft.shortcuts); setDirty(true); setPreview(false); setIssues([]);
+            persistDraft(pendingDraft.shortcuts, revision); setPendingDraft(null);
+            setMessage("최신 공개 버전을 기준으로 초안을 복구했습니다. 공개 내용은 아직 변경되지 않았습니다.");
           }}>초안 복구</button>}
           <button type="button" disabled={busy} onClick={checkDraft}>브라우저 초안 확인</button>
           {draftBlocked && <button type="button" disabled={busy} onClick={exportBackup}>현재 편집 내용 백업</button>}
