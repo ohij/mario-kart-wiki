@@ -170,8 +170,8 @@ test("Blob saves round-trip ETags and conditional races become conflicts (mock t
     get: async () => stored && ({ statusCode: 200, stream: new Blob([stored.raw]).stream(), blob: { etag: stored.etag } }),
     put: async (pathname, raw, config) => {
       options.push({ pathname, ...config });
-      if (stored && (!config.allowOverwrite || config.ifMatch !== stored.etag)) throw new PreconditionError();
-      stored = { raw, etag: `etag-${++count}` };
+      if (stored && (!config.allowOverwrite || config.ifMatch !== stored.etag.replace(/^W\//, ""))) throw new PreconditionError();
+      stored = { raw, etag: `W/"etag-${++count}"` };
       return { etag: stored.etag };
     },
   });
@@ -180,7 +180,7 @@ test("Blob saves round-trip ETags and conditional races become conflicts (mock t
   assert.equal(races.filter((r) => r.status === "fulfilled").length, 1);
   assert.ok(races.find((r) => r.status === "rejected").reason instanceof api.ShortcutConflictError);
   const first = await api.loadShortcuts(content.track);
-  assert.equal(first.revision, "etag-1");
+  assert.equal(first.revision, '"etag-1"');
   assert.equal(first.data.shortcuts[0].title, "Test");
   await api.saveShortcuts(content.track, { ...content, shortcuts: [] }, first.revision);
   assert.equal((await api.loadShortcuts(content.track)).data.shortcuts.length, 0);

@@ -10,6 +10,7 @@ import { publishedTrack } from "./shortcut-content";
 export const localStorageEnabled = () => process.env.SHORTCUT_STORAGE === "local" && !process.env.VERCEL;
 export const localStorageRoot = path.join(process.cwd(), ".shortcut-data");
 export const storageConfigured = () => localStorageEnabled() || Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+const blobRevision = (etag: string) => etag.replace(/^W\//, "");
 export { cookieName, adminConfigured, isAdmin, sessionToken } from "./admin-auth";
 export const requestOrigin = (request: NextRequest) => `${request.nextUrl.protocol}//${request.headers.get("host")}`;
 export function sameOrigin(request: NextRequest) {
@@ -41,7 +42,7 @@ export async function loadShortcuts(slug: string) {
   const result = await get(`shortcuts/content/${slug}.json`, { access: "public", useCache: false });
   if (!result) return { data: null, revision: "empty" };
   if (result.statusCode !== 200) throw new Error("숏컷 데이터를 읽지 못했습니다.");
-  return { data: parseBackup(await new Response(result.stream).json(), slug), revision: result.blob.etag };
+  return { data: parseBackup(await new Response(result.stream).json(), slug), revision: blobRevision(result.blob.etag) };
 }
 export async function loadPublishedTrack(track: Track): Promise<Track> {
   const { data } = await loadShortcuts(track.slug);
@@ -93,7 +94,7 @@ export async function saveShortcuts(slug: string, input: unknown, revision: stri
       access: "public", contentType: "application/json", addRandomSuffix: false,
       allowOverwrite: revision !== "empty", ...(revision !== "empty" ? { ifMatch: revision } : {}), cacheControlMaxAge: 60,
     });
-    return { data: stored, revision: result.etag };
+    return { data: stored, revision: blobRevision(result.etag) };
   } catch (error) {
     if (error instanceof BlobPreconditionFailedError) throw new ShortcutConflictError("다른 탭에서 공개 내용이 변경되었습니다. 내 초안은 유지됩니다. 최신 공개 내용을 확인해 주세요.");
     throw error;
